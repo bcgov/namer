@@ -1,9 +1,9 @@
 node {
     stage('build') {
         echo "Building..."
-        openshiftBuild bldCfg: 'corporate-names-registry', showBuildLogs: 'true'
-        openshiftTag destStream: 'corporate-names-registry', verbose: 'true', destTag: '$BUILD_ID', srcStream: 'corporate-names-registry', srcTag: 'latest'
-        openshiftTag destStream: 'corporate-names-registry', verbose: 'true', destTag: 'dev', srcStream: 'corporate-names-registry', srcTag: 'latest'
+        openshiftBuild bldCfg: 'namer', showBuildLogs: 'true'
+        openshiftTag destStream: 'namer', verbose: 'true', destTag: '$BUILD_ID', srcStream: 'namer', srcTag: 'latest'
+        openshiftTag destStream: 'namer', verbose: 'true', destTag: 'dev', srcStream: 'namer', srcTag: 'latest'
     }
 }
 
