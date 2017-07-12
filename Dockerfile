@@ -1,6 +1,6 @@
 FROM python:3-onbuild
 
-EXPOSE 9000
+EXPOSE 5000
 
 ENV FLASK_APP=wsgi.py
 
