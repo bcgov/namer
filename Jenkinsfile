@@ -8,11 +8,11 @@ node {
 }
 
 stage('deploy-test') {
-    #input "Deploy to test?"
-    #openshiftTag destStream: 'myapp', verbose: 'true', destTag: 'test', srcStream: 'myapp', srcTag: '$BUILD_ID'
+    //input "Deploy to test?"
+    //openshiftTag destStream: 'myapp', verbose: 'true', destTag: 'test', srcStream: 'myapp', srcTag: '$BUILD_ID'
 }
 
 stage('deploy-prod') {
-    #input "Deploy to prod?"
-    #openshiftTag destStream: 'myapp', verbose: 'true', destTag: 'prod', srcStream: 'myapp', srcTag: '$BUILD_ID'
+    //input "Deploy to prod?"
+    //openshiftTag destStream: 'myapp', verbose: 'true', destTag: 'prod', srcStream: 'myapp', srcTag: '$BUILD_ID'
 }
