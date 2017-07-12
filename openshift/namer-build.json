@@ -82,7 +82,7 @@
       "displayName": "Namespace",
       "required": true,
       "description": "The OpenShift Namespace where the ImageStream resides.",
-      "value": "cddi-dlt-test"
+      "value": "openshift"
     },
     {
       "name": "SOURCE_REPOSITORY_URL",
