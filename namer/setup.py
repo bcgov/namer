@@ -21,12 +21,15 @@ setup(
     install_requires=[
         'flask',
         'pymongo',
-        'pygtrie',
+        'pytrie',
     ],
     setup_requires=[
     ],
     tests_require=[
         'pytest',
+        'pytest-cov',
+        'pep8',
+        'pylint',
     ],
     license='Apache 2.0'
 )

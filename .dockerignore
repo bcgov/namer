@@ -36,12 +36,15 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+allure-results/
 htmlcov/
 .tox/
 .coverage
 .coverage.*
 .cache
+junit.xml
 nosetests.xml
+report.xml
 coverage.xml
 *.cover
 .hypothesis/
