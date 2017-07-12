@@ -8,15 +8,15 @@ def read(filename):
     return open(file_path).read()
 
 setup(
-    name='corpnamesregistry',
+    name='namer',
     author='',
     author_email='',
     version='0.1',
-    description="Corporate Names Registry",
+    description="Namer",
     long_description=read('../README.md'),
 
     packages=find_packages(),
-    package_dir={'corpnamesregistry': 'corpnamesregistry'},
+    package_dir={'namer': 'namer'},
     include_package_data=True,
     install_requires=[
         'flask',
