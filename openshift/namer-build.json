@@ -34,13 +34,9 @@
           "contextDir": "${CONTEXT_DIR}"
         },
         "strategy": {
-          "type": "Source",
-          "sourceStrategy": {
-            "from": {
-              "kind": "ImageStreamTag",
-              "namespace": "${NAMESPACE}",
-              "name": "python:3.5"
-            }
+          "type": "Docker",
+          "dockerStrategy": {
+            "dockerfilePath": "Dockerfile"
           }
         },
         "output": {
@@ -64,7 +60,7 @@
           }
         ],
         "postCommit": {
-		    "script": "pytest"
+		    "script": "return 0"
 		}
       }
     }
