@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request
 import json
+
+from flask import Flask, render_template, request
+from search import Search
 
 app = Flask(__name__)
 
@@ -12,12 +14,14 @@ def index():
 @app.route("/search")
 def search():
     term = request.args.get('term', '')
-    hits = []
+    results = Search.search(term.upper())
+    names = Search.gather_names(results)
 
-    for i in range(3):
+    hits = list()
+    for i, name in enumerate(names):
         hit = {'id': term[0].upper() + term[1::] + str(i),
-               'label': term[0].upper() + term[1::] + str(i) + " label",
-               'value': term[0].upper() + term[1::] + str(i) + " value"}
+               'label': name,
+               'value': name}
         hits.append(hit)
 
     return json.dumps(hits)
