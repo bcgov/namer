@@ -1,7 +1,17 @@
+<!DOCTYPE html>
 <html>
 
     <head>
-        <title>Test Namer</title>
+        <title>CNR - Namer</title>
+        <meta charset="UTF-8">
+        <!-- BC GOV -->
+        <script src="https://unipear.api.gov.bc.ca/v1/bcgov/"></script>
+        <script type="text/javascript">
+            unippear({
+                "headerContainer": "#govWrapper",
+                "footerContainer": "#govWrapper"
+            });
+        </script>
         <link rel="stylesheet" href="/static/css/search.css">
         <link href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.css" rel="stylesheet"/>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
@@ -9,11 +19,12 @@
     </head>
 
     <body>
-
-        <h1>Namer</h1>
-        <div class="ui-widget">
-            <label for="search">Search:</label>
-            <input class="form-control autocomplete" id="search" />
+        <div id="govWrapper">
+            <h1>CNR - Namer</h1>
+            <div class="ui-widget">
+                <label for="search">Search:</label>
+                <input class="form-control autocomplete" id="search" />
+            </div>
         </div>
 
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
