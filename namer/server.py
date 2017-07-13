@@ -5,11 +5,7 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
-    return "Hello World Greg!!"
-
-@app.route("/test")
-def test():
+def index():
     return render_template("search.html")
 
 @app.route("/search")
