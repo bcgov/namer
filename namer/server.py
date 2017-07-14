@@ -14,8 +14,10 @@ def index():
 @app.route("/search")
 def search():
     term = request.args.get('term', '')
-    results = Search.search(term.upper())
-    names = Search.gather_names(results)
+    term = term.upper()
+
+    results = Search.search(term)
+    names = Search.gather_names(results, term)
 
     hits = list()
     for i, name in enumerate(names):
@@ -24,7 +26,7 @@ def search():
                'value': name}
         hits.append(hit)
 
-    return json.dumps(hits)
+    return json.dumps(hits, indent=2)
 
 if __name__ == "__main__":
     app.run()
