@@ -1,10 +1,15 @@
 $(document).ready(function(){
     $("#search").autocomplete({
         source: function(request, response){
-            $.getJSON("/api/v1.0/search", request, function(data) {
+            $.getJSON("/api/v1.0/search",
+            {
+                term: request.term,
+                limit: 24
+            },
+            function(data) {
                 response(data.hits);
             });
         },
-        minLength: 2
+        minLength: 3
     });
 });

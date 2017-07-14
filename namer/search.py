@@ -78,9 +78,6 @@ class Search(object):
             logger.debug('Longest Prefix: %s',
                          Search.__search_trie.longest_prefix(prefix))
             result = Search.__search_trie.longest_prefix_value(prefix)
-            # Prefix Search option
-            # for value in Search.__search_trie.itervalues(prefix):
-            #   result.update(value)
         except KeyError:
             pass
 
@@ -96,7 +93,11 @@ class Search(object):
 
     @staticmethod
     def gather_names(index_set, prefix=None):
-        """Returns an aggregate list of all names from index_set"""
+        """
+            Returns a sorted aggregate list of all names from index_set with
+            entries beginning with prefix showing up first
+            Filters results to longest prefix if specified
+        """
         name_list = list()
         for index in index_set:
             values = Search.lookup_name(index)
@@ -104,10 +105,15 @@ class Search(object):
                 name_list += values
 
         if prefix is not None:
-            name_list = [name for name in name_list if prefix in name]
+            longest_prefix = Search.__search_trie.longest_prefix(prefix)
+            name_list = [name for name in name_list if longest_prefix in name]
 
-        return name_list
-
+        name_list = sorted(name_list, key=str.lower)
+        starts_with_list = \
+            [name for name in name_list if name.startswith(longest_prefix)]
+        remaining_list = \
+            [name for name in name_list if not name.startswith(longest_prefix)]
+        return starts_with_list + remaining_list
 
 if __name__ == "__main__":
     from timeit import default_timer as timer

@@ -1,3 +1,5 @@
+import sys
+
 from flask import Flask, jsonify, render_template, request
 from search import Search
 
@@ -12,6 +14,7 @@ def index():
 @app.route("/api/v1.0/search", methods=['GET'])
 def search():
     term = request.args.get('term')
+    limit = request.args.get('limit')
     hits = list()
 
     if term not in (None, ''):
@@ -19,7 +22,9 @@ def search():
         results = Search.search(term)
         names = Search.gather_names(results, term)
 
-        for i, name in enumerate(names):
+        if limit in (None, ''):
+            limit = sys.maxsize
+        for i, name in zip(range(int(limit)), names):
             hits.append({'id': str(i), 'label': name, 'value': name})
 
     return jsonify({'hits': hits})
