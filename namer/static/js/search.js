@@ -1,7 +1,7 @@
 $(document).ready(function(){
     $("#search").autocomplete({
         source: function(request, response){
-            $.getJSON("/api/v1.0/search",
+            $.getJSON("/api/v1/search",
             {
                 term: request.term,
                 limit: 24

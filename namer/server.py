@@ -11,7 +11,7 @@ def index():
     return render_template("search.html")
 
 
-@app.route("/api/v1.0/search", methods=['GET'])
+@app.route("/api/v1/search", methods=['GET'])
 def search():
     term = request.args.get('term')
     limit = request.args.get('limit')
