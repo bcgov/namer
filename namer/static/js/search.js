@@ -4,7 +4,7 @@ $(document).ready(function(){
             $.getJSON("/api/v1/search",
             {
                 term: request.term,
-                limit: 24
+                limit: 20
             },
             function(data) {
                 response(data.hits);
