@@ -21,9 +21,10 @@ class Search(object):
     @staticmethod
     def load_data(file_path):
         """
-            Temporary Proof of concept function
-            Loads information from CSV file
-            Parses and splits CORP_NME for search_trie
+        Temporary Proof of concept function - Loads information from CSV file
+        Parses and splits CORP_NME for search_trie
+        :param file_path: File path of CSV
+        :return: None
         """
         import csv
         import re
@@ -69,8 +70,12 @@ class Search(object):
         logger.info('Loaded and indexed data')
 
     @staticmethod
-    def search(prefix):
-        """Searches and returns a list of values which match the prefix"""
+    def _trie_search(prefix):
+        """
+        Searches and returns a set of values which contain the prefix
+        :param prefix: Search term
+        :return: Set containing results
+        """
         result = set()
         try:
             logger.debug('Prefix Matches: %s',
@@ -84,23 +89,30 @@ class Search(object):
         return result
 
     @staticmethod
-    def lookup_name(index):
-        """Looks up indexed cached names if they exist"""
+    def _lookup_name(index):
+        """
+        Looks up indexed cached names if they exist
+        :param index: Index value
+        :return: String name value
+        """
         if index in Search.__cached_name:
             return Search.__cached_name[index]
         else:
             return None
 
     @staticmethod
-    def gather_names(index_set, prefix=None):
+    def _gather_names(index_set, prefix=None):
         """
-            Returns a sorted aggregate list of all names from index_set with
-            entries beginning with prefix showing up first
-            Filters results to longest prefix if specified
+        Returns a sorted aggregate list of all names from index_set with entries
+        beginning with prefix showing up first
+        Filters results to longest prefix if specified
+        :param index_set:
+        :param prefix:
+        :return:
         """
         name_list = list()
         for index in index_set:
-            values = Search.lookup_name(index)
+            values = Search._lookup_name(index)
             if values is not None:
                 name_list += values
 
@@ -115,32 +127,55 @@ class Search(object):
             [name for name in name_list if not name.startswith(longest_prefix)]
         return starts_with_list + remaining_list
 
+    @staticmethod
+    def search(term=None, limit=None):
+        """
+        Returns a dictionary containing the search results of term in hits
+        Hits is a list of dictionaries containing an id, label and value
+        :param term: String search term
+        :param limit: Limites number of results returned
+        :return: Dictionary containing list of hits
+        """
+        hits = list()
+
+        if term not in (None, ''):
+            term = term.upper()
+            results = Search._trie_search(term)
+            names = Search._gather_names(results, term)
+
+            if limit in (None, ''):
+                limit = sys.maxsize
+            for i, name in zip(range(int(limit)), names):
+                hits.append({'id': str(i), 'label': name, 'value': name})
+
+        return {'hits': hits}
+
+    @staticmethod
+    def main(argv):
+        """
+        Searches and prints the results of the search term with timings
+        :param argv: Command line arguments
+        :return: None
+        """
+        from timeit import default_timer as timer
+
+        # TODO: Move logging infrastructure to proper place
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(asctime)s - %(levelname)s - %(message)s')
+
+        if len(argv) > 1:
+            load_start = timer()
+            Search()
+            load_end = timer()
+            search_start = timer()
+            results = Search.search(argv[1])
+            search_end = timer()
+
+            logger.info('Results: %s', results)
+            logger.info('Data load time: %s', str(load_end - load_start))
+            logger.info('Search time: %s', str(search_end - search_start))
+        else:
+            logger.error('No search term specified')
+
 if __name__ == "__main__":
-    from timeit import default_timer as timer
-
-    # TODO: Move logging infrastructure to proper place
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s - %(levelname)s - %(message)s')
-
-    if len(sys.argv) > 1:
-        term = sys.argv[1]
-
-        load_start = timer()
-        engine = Search()
-        load_end = timer()
-
-        search_start = timer()
-        results = Search.search(term)
-        search_end = timer()
-
-        gather_start = timer()
-        names = Search.gather_names(results, term)
-        gather_end = timer()
-
-        logger.info('Results: %s', results)
-        logger.info('Names: %s', names)
-        logger.info('Total results: %s', sum(1 for _ in results))
-        logger.info('Total names: %s', sum(1 for _ in names))
-        logger.info('Data load time: %s', str(load_end - load_start))
-        logger.info('Search time: %s', str(search_end - search_start))
-        logger.info('Gather time: %s', str(gather_end - gather_start))
+    Search.main(sys.argv)
