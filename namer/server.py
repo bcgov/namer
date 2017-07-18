@@ -1,26 +1,30 @@
-from flask import Flask, render_template, request
-import json
+from flask import Flask, jsonify, render_template, request
+from search import Search
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def index():
+    """
+    Root server page
+    :return: Root server page
+    """
     return render_template("search.html")
 
 
-@app.route("/search")
+@app.route("/api/v1/search", methods=['GET'])
 def search():
-    term = request.args.get('term', '')
-    hits = []
+    """
+    Returns a JSON response containing the results of the search term
+    :return: JSON Response
+    """
+    term = request.args.get('term')
+    limit = request.args.get('limit')
 
-    for i in range(3):
-        hit = {'id': term[0].upper() + term[1::] + str(i),
-               'label': term[0].upper() + term[1::] + str(i) + " label",
-               'value': term[0].upper() + term[1::] + str(i) + " value"}
-        hits.append(hit)
+    result = Search.search(term, limit)
+    return jsonify(result)
 
-    return json.dumps(hits)
 
 if __name__ == "__main__":
     app.run()

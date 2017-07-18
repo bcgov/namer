@@ -106,6 +106,9 @@ ENV/
 # mypy
 .mypy_cache/
 
+# DS_STORE
+.DS_Store
+
 #angular 2 ignores
 **/node_modules
 namer/static/js/app/main.js
