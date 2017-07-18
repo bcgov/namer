@@ -1,0 +1,79 @@
+---
+swagger: "2.0"
+info:
+  description: "Corporate Name Search"
+  version: "1.0.0"
+  title: "Corporate Name Search"
+  contact:
+    email: ""
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "namer-cddi-dlt-test.pathfinder.gov.bc.ca"
+basePath: "/api/search/v1"
+tags:
+- name: "search"
+  description: "The search calls"
+schemes:
+- "http"
+paths:
+  /search:
+    get:
+      tags:
+      - "search"
+      summary: "Runs a search on the string against the existing data"
+      description: "Runs a search on the string against the existing data"
+      operationId: "search_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "q"
+        description: "The value to search for"
+        required: true
+        schema:
+          $ref: "#/definitions/searchTerm"
+      - in: "query"
+        name: "limit"
+        default: 10
+        description: "The limit of the search"
+        required: false
+        schema:
+          $ref: "#/definitions/searchLimit"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/searchSuccess"
+        405:
+          schema:
+            $ref: "#/definitions/errors"
+
+definitions:
+  searchTerm:
+    type: "string"
+  searchLimit:
+    type: "integer"
+    format: "int32"
+  errors:
+    properties:
+      error:
+        type: "string"
+      errorCode:
+        type: "integer"
+        format: "int32"
+  searchSuccess:
+    properties:
+      hits:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+            label:
+              type: "string"
+            value:
+              type: "string"
+

@@ -1,0 +1,262 @@
+---
+swagger: "2.0"
+info:
+  description: "Corporate Name Validator (best guess)"
+  version: "1.0.0"
+  title: "Corporate Name Validator"
+  contact:
+    email: ""
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "namer-cddi-dlt-test.pathfinder.gov.bc.ca"
+basePath: "/api/validator/v1"
+tags:
+- name: "generic"
+  description: "The one call stop"
+- name: "blacklist"
+  description: "Calls regarding the black list"
+- name: "greylist"
+  description: "Calls regarding the grey list"
+- name: "corporate"
+  description: "Calls regarding the validation of corporate string portion"
+- name: "descriptive"
+  description: "Calls regarding the validation of descriptive string portion"
+- name: "distinctive"
+  description: "Calls regarding the validation of distinctive string portion"
+schemes:
+- "http"
+paths:
+  /validate:
+    post:
+      tags:
+      - "generic"
+      summary: "Runs all the validation steps and returns a comprehensive JSON Object"
+      description: "Runs all the validation steps and returns a comprehensive JSON Object"
+      operationId: "validate_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "corporateName"
+        description: "The name to validate against"
+        required: true
+        schema:
+          $ref: "#/definitions/corporateName"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/validateResponse"
+        405:
+          schema:
+            $ref: "#/definitions/errorResponse"
+
+  /blacklist:
+    post:
+      tags:
+      - "blacklist"
+      summary: "Checks a string for occurances of blacklist"
+      description: "Checks a string for occurances of blacklisted words"
+      operationId: "blacklist_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "corporateName"
+        description: "The string to check against the black list"
+        required: true
+        schema:
+          $ref: "#/definitions/corporateName"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/blacklistResponse"
+        405:
+          schema:
+            $ref: "#/definitions/errorResponse"
+
+  /greylist:
+    post:
+      tags:
+      - "greylist"
+      summary: "Checks a string for occurances of greylist"
+      description: "Checks a string for occurances of greylist words"
+      operationId: "greylist_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "corporateName"
+        description: "The string to check against the grey list"
+        required: true
+        schema:
+          $ref: "#/definitions/corporateName"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/greylistResponse"
+        405:
+          schema:
+            $ref: "#/definitions/errorResponse"
+
+  /corporate:
+    post:
+      tags:
+      - "corporate"
+      summary: "Checks a string to see if it a valid corporation type"
+      description: "Checks a string to see if it a valid corporation type"
+      operationId: "corporate_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "corporateString"
+        description: "The string to check against the grey list"
+        required: true
+        schema:
+          $ref: "#/definitions/corporateString"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/corporateResponse"
+        405:
+          schema:
+            $ref: "#/definitions/errorResponse"
+
+  /descriptive:
+    post:
+      tags:
+      - "descriptive"
+      summary: "Checks a string to see if it contains a valid descriptive for corporate names"
+      description: "Checks a string to see if it contains a valid descriptive for corporate names"
+      operationId: "descriptive_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "corporateString"
+        description: "The string to check for valid descriptive portion"
+        required: true
+        schema:
+          $ref: "#/definitions/corporateString"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/distDescResponse"
+        405:
+          schema:
+            $ref: "#/definitions/errorResponse"
+
+  /distinctive:
+    post:
+      tags:
+      - "distinctive"
+      summary: "Checks a string to see if it contains a valid distinctive for corporate names"
+      description: "Checks a string to see if it contains a valid distinctive for corporate names, note that this probably means not all the string was consumed with descriptives"
+      operationId: "distinctive_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "corporateString"
+        description: "The string to check for valid descriptive portion"
+        required: true
+        schema:
+          $ref: "#/definitions/corporateString"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/distDescResponse"
+        405:
+          schema:
+            $ref: "#/definitions/errorResponse"
+
+definitions:
+  errors:
+    type: "array"
+    items:
+      $ref: "#/definitions/errorArray"
+  corporateName:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+  errorArray:
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      severity:
+        type: "integer"
+        format: "int32"
+        description: "0 - No error.\n1 - Warn\n2 - Error"
+      message:
+        type: "string"
+  distDescResponse:
+    properties:
+      exists:
+        type: "boolean"
+      value:
+        type: "string"
+      errors:
+          $ref: "#/definitions/errors"
+  corporateResponse:
+    properties:
+      valid:
+        type: "boolean"
+      errors:
+        $ref: "#/definitions/errors"
+  validateResponse:
+    properties:
+      distinct:
+        $ref: "#/definitions/distDescResponse"
+      descriptive:
+        $ref: "#/definitions/distDescResponse"
+      corporation:
+        $ref: "#/definitions/corporateResponse"
+  errorResponse:
+    properties:
+      error:
+        type: "string"
+      errorCode:
+        type: "integer"
+        format: "int32"
+  blacklisted:
+    properties:
+      values:
+        type: "array"
+        items:
+          type: "string"
+  blacklistResponse:
+    properties:
+      blacklisted:
+        $ref: "#/definitions/blacklisted"
+      errors:
+        type: "array"
+        items:
+          $ref: "#/definitions/errorArray"
+  greylistResponse:
+    properties:
+      greylisted:
+        $ref: "#/definitions/blacklisted"
+      errors:
+        type: "array"
+        items:
+          $ref: "#/definitions/errorArray"
+  corporateString:
+    type: "object"
+    properties:
+      name:
+        type: "string"

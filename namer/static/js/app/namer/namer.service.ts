@@ -14,12 +14,15 @@ export class HitResult{
 
 @Injectable()
 export class NamerService {
-    private namerUrl = '/search?term=';  // URL to web API
+    private namerUrl = '/api/search/v1/search?q=';  // URL to web API
 
     constructor (private http: Http) {}
 
     getHits(query: string): Observable<HitResult[]> {
-        return this.http.get(this.namerUrl+query)
+        let limit = 20;
+        let url = this.nameUrl + query + "&limit=" + limit;
+
+        return this.http.get(url)
                     .map(this.extractData)
                     .catch(this.handleError);
     }
