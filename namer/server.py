@@ -1,12 +1,13 @@
-from flask import Flask, jsonify, render_template, request
-from search import Search
-from flask_swaggerui import render_swaggerui, build_static_blueprint
-import yaml
 import os
+import yaml
+
+from flask import Flask, jsonify, render_template, request
+from flask_swaggerui import render_swaggerui, build_static_blueprint
+from search import Search
 
 app = Flask(__name__)
-
 app.register_blueprint(build_static_blueprint("swaggerui", __name__))
+
 
 @app.route("/")
 def index():
@@ -32,25 +33,31 @@ def search():
     return jsonify(result)
 
 
-@app.route("/api/validator/v1/docs")
-def validator_docs():
-    return render_swaggerui(swagger_spec_path="/api/validator/v1/swagger")
-
-@app.route("/api/validator/v1/swagger")
-def validator_swagger():
-    v1_swag = open(os.path.dirname(__file__) + "/swagger/validator.v1.swagger.yaml", "r")
-    docs = yaml.load(v1_swag)
-    return jsonify(docs)
-
 @app.route("/api/search/v1/docs")
 def search_docs():
     return render_swaggerui(swagger_spec_path="/api/search/v1/swagger")
 
+
 @app.route("/api/search/v1/swagger")
 def search_swagger():
-    v1_swag = open(os.path.dirname(__file__) + "/swagger/search.v1.swagger.yaml", "r")
+    v1_swag = open(os.path.dirname(__file__) +
+                   "/swagger/search.v1.swagger.yaml", "r")
     docs = yaml.load(v1_swag)
     return jsonify(docs)
+
+
+@app.route("/api/validator/v1/docs")
+def validator_docs():
+    return render_swaggerui(swagger_spec_path="/api/validator/v1/swagger")
+
+
+@app.route("/api/validator/v1/swagger")
+def validator_swagger():
+    v1_swag = open(os.path.dirname(__file__) +
+                   "/swagger/validator.v1.swagger.yaml", "r")
+    docs = yaml.load(v1_swag)
+    return jsonify(docs)
+
 
 @app.route("/api/validator/v1/validate", methods=['POST'])
 def validate():

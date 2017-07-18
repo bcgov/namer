@@ -22,6 +22,8 @@ setup(
         'flask',
         'pymongo',
         'pytrie',
+        'pyyaml',
+        'flask-swaggerui',
     ],
     setup_requires=[
     ],
