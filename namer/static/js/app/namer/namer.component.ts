@@ -27,11 +27,11 @@ export class NamerComponent {
     fullSearchResults: string;
 
     constructor(private namerService : NamerService, private validatorService: ValidatorService) {
-      this.searchBox = new FormControl();
-      this.showValidation = false;
-      this.searchBox.valueChanges.subscribe(
-          data => this.getHits(data)
-      )
+        this.searchBox = new FormControl();
+        this.showValidation = false;
+        this.searchBox.valueChanges.subscribe(
+            data => this.getHits(data)
+        )
     }
 
     getHits(val: string) {
@@ -80,5 +80,4 @@ export class NamerComponent {
             }
         );
     }
-
 }

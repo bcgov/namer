@@ -6,24 +6,24 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 
-export class ValidationResult{
+export class ValidationResult {
     corporation: CorporationResult;
     descriptive: DescDistObj;
     distinct: DescDistObj;
 }
 
-class CorporationResult{
+class CorporationResult {
     errors: ErrorsObj[];
     valid: boolean;
 }
 
-class DescDistObj{
+class DescDistObj {
     errors: ErrorsObj[];
     exists: boolean;
     value: string;
 }
 
-class ErrorsObj{
+class ErrorsObj {
     code: number;
     message: string;
     severity: number;
@@ -52,11 +52,11 @@ export class ValidatorService {
     private handleError (error: Response | any) {
         let errMsg: string;
         if (error instanceof Response) {
-          const body = error.json() || '';
-          const err = body.error || JSON.stringify(body);
-          errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+            const body = error.json() || '';
+            const err = body.error || JSON.stringify(body);
+            errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
         } else {
-          errMsg = error.message ? error.message : error.toString();
+            errMsg = error.message ? error.message : error.toString();
         }
         console.error(errMsg);
         return Observable.throw(errMsg);

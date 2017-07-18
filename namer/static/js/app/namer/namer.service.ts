@@ -6,7 +6,11 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 
-export class HitResult{
+export class HitResult {
+    hits: Hit[]
+}
+
+class Hit {
     label: string;
     value: string;
     id: string;
@@ -18,7 +22,7 @@ export class NamerService {
 
     constructor (private http: Http) {}
 
-    getHits(query: string): Observable<HitResult[]> {
+    getHits(query: string): Observable<HitResult> {
         let limit = 20;
         let url = this.namerUrl + query + "&limit=" + limit;
 
@@ -35,14 +39,13 @@ export class NamerService {
     private handleError (error: Response | any) {
         let errMsg: string;
         if (error instanceof Response) {
-          const body = error.json() || '';
-          const err = body.error || JSON.stringify(body);
-          errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+            const body = error.json() || '';
+            const err = body.error || JSON.stringify(body);
+            errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
         } else {
-          errMsg = error.message ? error.message : error.toString();
+            errMsg = error.message ? error.message : error.toString();
         }
         console.error(errMsg);
         return Observable.throw(errMsg);
     }
-
 }
