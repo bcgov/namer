@@ -16,10 +16,10 @@ class Search(object):
         if self.__search_trie is None:
             file_path = os.path.join(os.path.dirname(__file__), '..', 'files',
                                      'data-100k.csv')
-            self.load_data(file_path)
+            self._load_data(file_path)
 
     @staticmethod
-    def load_data(file_path):
+    def _load_data(file_path):
         """
         Temporary Proof of concept function - Loads information from CSV file
         Parses and splits CORP_NME for search_trie
@@ -31,8 +31,8 @@ class Search(object):
 
         # TODO: Move field constants elsewhere
         index_field = 'CORP_NUM'
-        name_field = 'CORP_NME'
         end_event_field = 'END_EVENT_ID'
+        name_field = 'CORP_NME'
 
         Search.__search_trie = Trie()
         Search.__cached_name = dict()
@@ -41,7 +41,8 @@ class Search(object):
             return
 
         with open(file_path) as file:
-            reader = csv.DictReader(file, delimiter=';', quoting=csv.QUOTE_NONE)
+            reader = csv.DictReader(file, delimiter=';',
+                                    quoting=csv.QUOTE_NONE)
             try:
                 for row in reader:
                     # Ignore columns with specified END_EVENT_ID
@@ -59,12 +60,17 @@ class Search(object):
                     # Build Search Trie
                     # Removes non-alphanumeric characters and splits words
                     clean_name = re.sub(r'[^a-zA-Z\d\s]', '', row[name_field])
-                    for element in clean_name.split():
-                        if element not in (None, ''):
-                            if element not in Search.__search_trie:
-                                Search.__search_trie[element] = set()
+                    for word in clean_name.split():
+                        if word not in (None, ''):
+                            # Create all possible suffixes of word
+                            suffix_list = \
+                                [(yield(word[i:])) for i in range(len(word))]
+                            for suffix in suffix_list:
+                                if suffix not in Search.__search_trie:
+                                    Search.__search_trie[suffix] = set()
+                                Search.__search_trie[suffix].add(
+                                    row[index_field])
 
-                            Search.__search_trie[element].add(row[index_field])
             except UnicodeDecodeError:
                 logger.error('Unexpected input at line %s', reader.line_num)
         logger.info('Loaded and indexed data')
@@ -76,17 +82,19 @@ class Search(object):
         :param prefix: Search term
         :return: Set containing results
         """
-        result = set()
+        results = set()
         try:
             logger.debug('Prefix Matches: %s',
-                         list(Search.__search_trie.iter_prefixes(prefix)))
+                         Search.__search_trie.keys(prefix))
             logger.debug('Longest Prefix: %s',
                          Search.__search_trie.longest_prefix(prefix))
-            result = Search.__search_trie.longest_prefix_value(prefix)
+
+            for result in Search.__search_trie.values(prefix):
+                results = results.union(result)
         except KeyError:
             pass
 
-        return result
+        return results
 
     @staticmethod
     def _lookup_name(index):
@@ -103,29 +111,37 @@ class Search(object):
     @staticmethod
     def _gather_names(index_set, prefix=None):
         """
-        Returns a sorted aggregate list of all names from index_set with entries
-        beginning with prefix showing up first
+        Returns a sorted aggregate list of all names from index_set with
+        entries beginning with prefix showing up first
         Filters results to longest prefix if specified
         :param index_set:
         :param prefix:
         :return:
         """
+        # Gather cached names into a single list
         name_list = list()
         for index in index_set:
             values = Search._lookup_name(index)
             if values is not None:
                 name_list += values
 
-        if prefix is not None:
-            longest_prefix = Search.__search_trie.longest_prefix(prefix)
-            name_list = [name for name in name_list if longest_prefix in name]
+        # Filter results to only contain results with prefix
+        # if prefix not in (None, ''):
+        #    longest_prefix = Search.__search_trie.longest_prefix(prefix)
+        #    name_list = [name for name in name_list if longest_prefix in name]
 
+        # Sort names alphabetically
         name_list = sorted(name_list, key=str.lower)
-        starts_with_list = \
-            [name for name in name_list if name.startswith(longest_prefix)]
-        remaining_list = \
-            [name for name in name_list if not name.startswith(longest_prefix)]
-        return starts_with_list + remaining_list
+
+        # Bring strings with matching prefix to the top
+        if prefix not in (None, ''):
+            starts_with_list = \
+                [name for name in name_list if name.startswith(prefix)]
+            remaining_list = \
+                [name for name in name_list if not name.startswith(prefix)]
+            name_list = starts_with_list + remaining_list
+
+        return name_list
 
     @staticmethod
     def search(term=None, limit=None):
@@ -137,7 +153,6 @@ class Search(object):
         :return: Dictionary containing list of hits
         """
         hits = list()
-
         if term not in (None, ''):
             term = term.upper()
             results = Search._trie_search(term)
