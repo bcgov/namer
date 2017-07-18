@@ -19,6 +19,17 @@ class Search(object):
             self._load_data(file_path)
 
     @staticmethod
+    def _clean_string(string):
+        """
+        Removes non-alphanumeric characters
+        :param string: Input string
+        :return: Sanitized string
+        """
+        import re
+
+        return re.sub(r'[^a-zA-Z\d\s]', '', string)
+
+    @staticmethod
     def _load_data(file_path):
         """
         Temporary Proof of concept function - Loads information from CSV file
@@ -27,7 +38,6 @@ class Search(object):
         :return: None
         """
         import csv
-        import re
 
         # TODO: Move field constants elsewhere
         index_field = 'CORP_NUM'
@@ -58,8 +68,8 @@ class Search(object):
                             row[name_field])
 
                     # Build Search Trie
-                    # Removes non-alphanumeric characters and splits words
-                    clean_name = re.sub(r'[^a-zA-Z\d\s]', '', row[name_field])
+                    # Remove non-alphanumeric characters and split words
+                    clean_name = Search._clean_string(row[name_field])
                     for word in clean_name.split():
                         if word not in (None, ''):
                             # Create all possible suffixes of word
@@ -90,7 +100,7 @@ class Search(object):
                          Search.__search_trie.longest_prefix(prefix))
 
             for result in Search.__search_trie.values(prefix):
-                results = results.union(result)
+                results.update(result)  # Union
         except KeyError:
             pass
 
@@ -109,14 +119,12 @@ class Search(object):
             return None
 
     @staticmethod
-    def _gather_names(index_set, prefix=None):
+    def _gather_names(index_set):
         """
         Returns a sorted aggregate list of all names from index_set with
         entries beginning with prefix showing up first
-        Filters results to longest prefix if specified
-        :param index_set:
-        :param prefix:
-        :return:
+        :param index_set: Set of Index values
+        :return: List of sorted names
         """
         # Gather cached names into a single list
         name_list = list()
@@ -125,38 +133,60 @@ class Search(object):
             if values is not None:
                 name_list += values
 
-        # Filter results to only contain results with prefix
-        # if prefix not in (None, ''):
-        #    longest_prefix = Search.__search_trie.longest_prefix(prefix)
-        #    name_list = [name for name in name_list if longest_prefix in name]
+        # Return alphabetically sorted names
+        return sorted(name_list, key=str.lower)
 
-        # Sort names alphabetically
-        name_list = sorted(name_list, key=str.lower)
+    @staticmethod
+    def _filter_names(name_list, query):
+        """
+        Filters name_list to only contain names with all words in query_list
+        Attempts to reorder entries starting with query_list to the top
+        :param name_list: List of names
+        :param query: Raw query String
+        :return:
+        """
+        # If nothing to filter and sort with
+        if query in (None, ''):
+            return name_list
 
-        # Bring strings with matching prefix to the top
-        if prefix not in (None, ''):
+        clean_q = Search._clean_string(query)
+        if clean_q not in (None, ''):
+            # Filter results that do not contain values in query_list
+            for term in clean_q.split():
+                if term not in (None, ''):
+                    name_list = [name for name in name_list if term in name]
+
+            # Bring strings with matching prefix to the top
             starts_with_list = \
-                [name for name in name_list if name.startswith(prefix)]
+                [name for name in name_list if name.startswith(clean_q)]
             remaining_list = \
-                [name for name in name_list if not name.startswith(prefix)]
+                [name for name in name_list if not name.startswith(clean_q)]
             name_list = starts_with_list + remaining_list
 
         return name_list
 
     @staticmethod
-    def search(term=None, limit=None):
+    def search(query=None, limit=None):
         """
         Returns a dictionary containing the search results of term in hits
         Hits is a list of dictionaries containing an id, label and value
-        :param term: String search term
+        :param query: String search term
         :param limit: Limites number of results returned
         :return: Dictionary containing list of hits
         """
         hits = list()
-        if term not in (None, ''):
-            term = term.upper()
-            results = Search._trie_search(term)
-            names = Search._gather_names(results, term)
+        if query not in (None, ''):
+            query = query.upper()
+            clean_q = Search._clean_string(query)
+            results = set()
+            for term in clean_q.split():
+                if len(results) == 0:
+                    results = Search._trie_search(term)
+                else:
+                    results.intersection_update(Search._trie_search(term))
+
+            name_list = Search._gather_names(results)
+            names = Search._filter_names(name_list, query)
 
             if limit in (None, ''):
                 limit = sys.maxsize
