@@ -20,7 +20,7 @@ export class NamerService {
 
     getHits(query: string): Observable<HitResult[]> {
         let limit = 20;
-        let url = this.nameUrl + query + "&limit=" + limit;
+        let url = this.namerUrl + query + "&limit=" + limit;
 
         return this.http.get(url)
                     .map(this.extractData)
