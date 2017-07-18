@@ -3,12 +3,41 @@
 <div class="ui-widget">
     <label for="search">Search:</label>
     <md-input-container>
-        <input id="search" type="text" mdInput [formControl]="searchBox" [mdAutocomplete]="auto">
+        <input id="search" type="text" mdInput [formControl]="searchBox" [mdAutocomplete]="auto" />
     </md-input-container>
 
     <md-autocomplete #auto="mdAutocomplete">
        <md-option *ngFor="let option of options" [value]="option.value">
-          {{ option.label }}
+          <span [innerHTML]="highlight(option.label)"></span>
        </md-option>
     </md-autocomplete>
+
+    <button md-button (click)="check()" class="btn btn-primary">Check Validity</button>
+</div>
+
+<div *ngIf="showValidation">
+    <h2>Validation Information</h2>
+    <div class="ui-widget">
+        <label for="distinct">Distinct:</label>
+        <input type="text" id="distinct" readonly="readonly" [value]="distinct" />
+        <div class="errorText" [innerHTML]="distinctErrors"></div>
+    </div>
+
+    <div class="ui-widget">
+        <label for="descriptive">Descriptive:</label>
+        <input type="text" id="descriptive" readonly="readonly" [value]="descriptive" />
+        <div class="errorText" [innerHTML]="descriptiveErrors"></div>
+    </div>
+
+    <div class="ui-widget">
+        <label for="corporate">Corporate:</label>
+        <input type="text" id="corporate" readonly="readonly" [value]="corporate" />
+        <div class="errorText" [innerHTML]="corporateErrors"></div>
+    </div>
+
+    <h3>Similar Names</h3>
+    <div class="ui-widget">
+        <div [innerHTML]="fullSearchResults"></div>
+    </div>
+
 </div>

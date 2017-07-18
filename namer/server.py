@@ -26,7 +26,7 @@ def search():
     term = request.args.get('q')
     limit = request.args.get('limit')
     if limit is None:
-        limit = 10
+        limit = 20
 
     result = Search.search(term, limit)
     return jsonify(result)
@@ -51,6 +51,45 @@ def search_swagger():
     v1_swag = open(os.path.dirname(__file__) + "/swagger/search.v1.swagger.yaml", "r")
     docs = yaml.load(v1_swag)
     return jsonify(docs)
+
+@app.route("/api/validator/v1/validate", methods=['POST'])
+def validate():
+    stubObj = {
+        "corporation": {
+            "errors": [
+                {
+                    "code": 1,
+                    "message": "Test Corp error",
+                    "severity": 1
+                }
+            ],
+            "valid": True,
+            "value": "Ltd."
+        },
+        "descriptive": {
+            "errors": [
+                  {
+                      "code": 1,
+                      "message": "Test descriptive error",
+                      "severity": 1
+                  }
+              ],
+            "exists": True,
+            "value": "Lawnmower"
+        },
+        "distinct": {
+            "errors": [
+                {
+                    "code": 1,
+                    "message": "Test distinctive error",
+                    "severity": 1
+                }
+            ],
+            "exists": True,
+            "value": "Bob's"
+        }
+    }
+    return jsonify(stubObj)
 
 if __name__ == "__main__":
     app.run()

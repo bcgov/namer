@@ -6,29 +6,46 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 
-export class HitResult{
-    label: string;
+export class ValidationResult{
+    corporation: CorporationResult;
+    descriptive: DescDistObj;
+    distinct: DescDistObj;
+}
+
+class CorporationResult{
+    errors: ErrorsObj[];
+    valid: boolean;
+}
+
+class DescDistObj{
+    errors: ErrorsObj[];
+    exists: boolean;
     value: string;
-    id: string;
+}
+
+class ErrorsObj{
+    code: number;
+    message: string;
+    severity: number;
 }
 
 @Injectable()
-export class NamerService {
-    private namerUrl = '/api/search/v1/search?q=';  // URL to web API
+export class ValidatorService {
+    private validatorUrl = '/api/validator/v1'; //root url
 
     constructor (private http: Http) {}
 
-    getHits(query: string): Observable<HitResult[]> {
-        let limit = 20;
-        let url = this.namerUrl + query + "&limit=" + limit;
+    validate(corpName: string): Observable<ValidationResult[]> {
+        let url = this.validatorUrl + "/validate";
+        let postBody = {name: corpName};
 
-        return this.http.get(url)
+        return this.http.post(url, postBody)
                     .map(this.extractData)
                     .catch(this.handleError);
     }
 
     private extractData(res: Response) {
-        var hitResults: HitResult[] = JSON.parse(res.text());
+        var hitResults: ValidationResult[] = JSON.parse(res.text());
         return hitResults;
     }
 
@@ -44,5 +61,4 @@ export class NamerService {
         console.error(errMsg);
         return Observable.throw(errMsg);
     }
-
 }
