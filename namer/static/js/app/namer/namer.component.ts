@@ -14,21 +14,31 @@ import 'rxjs/add/operator/map';
 
 export class NamerComponent {
 
+    ERROR_CLASS = "validationError";
+    WARN_CLASS = "validationWarn";
+
     searchBox: FormControl;
     options: any;
 
+    validating: boolean;
     showValidation: boolean;
     distinct: string;
     distinctErrors: string;
+    distinctErrorClass: string;
     descriptive: string;
     descriptiveErrors: string;
+    descriptiveErrorClass: string;
     corporate: string;
     corporateErrors: string;
+    corporateErrorClass: string;
     fullSearchResults: string;
+    validateEnabled: boolean;
 
     constructor(private namerService : NamerService, private validatorService: ValidatorService) {
         this.searchBox = new FormControl();
         this.showValidation = false;
+        this.validateEnabled = false;
+        this.validating = false;
         this.searchBox.valueChanges.subscribe(
             data => this.getHits(data)
         )
@@ -37,8 +47,12 @@ export class NamerComponent {
     getHits(val: string) {
         if (val.length < 3 ){
             this.options = [];
+            this.validateEnabled = false;
             return;
         }
+
+        let splitted = val.replace(/\s+/g,' ').trim().split(' ');
+        this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
 
         this.namerService.getHits(val).subscribe(
             data => this.options = data.hits ? data.hits : []
@@ -54,29 +68,72 @@ export class NamerComponent {
     }
 
     check(){
+        let val = this.searchBox.value;
+        this.validating = true;
         this.showValidation = true;
         this.distinct = "";
         this.distinctErrors = "";
+        this.distinctErrorClass = "";
         this.descriptive = "";
         this.descriptiveErrors = "";
+        this.descriptiveErrorClass = "";
         this.corporate = "";
         this.corporateErrors = "";
+        this.corporateErrorClass = "";
         this.fullSearchResults = "";
 
+        let done = 0;
+
         this.validatorService.validate(this.searchBox.value).subscribe(
-            data => function(data: any){
+            (data) => {
+                console.log(data);
                 this.distinct = data.distinct.value;
-                this.distinctErrors = data.distinct.errors[0] ? data.distinct.errors[0].message : "";
+                if ( data.distinct.errors.errors[0] ) {
+                    this.distinctErrors = data.distinct.errors.errors[0].message;
+                    console.log("distinct severity: " + data.distinct.errors.errors[0].severity);
+                    console.log("distinct error: " + data.distinct.errors.ERROR_VALUE);
+                    console.log("distinct warn: " + data.distinct.errors.WARN_VALUE);
+                    this.distinctErrorClass = (data.distinct.errors.errors[0].severity == data.distinct.errors.ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.distinct.errors.errors[0].severity == data.distinct.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                }
+
                 this.descriptive = data.descriptive.value;
-                this.descriptiveErrors = data.descriptive.errors[0] ? data.descriptive.errors[0].message : "";
+                if ( data.descriptive.errors.errors[0] ) {
+                    this.descriptiveErrors = data.descriptive.errors.errors[0].message;
+                    this.descriptiveErrorClass = (data.descriptive.errors.errors[0].severity == data.descriptive.errors.ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.descriptive.errors.errors[0].severity == data.descriptive.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                }
+
                 this.corporate = data.corporation.value;
-                this.corporateErrors = data.descriptive.errors[0] ? data.descriptive.errors[0].message : "";
+                if ( data.corporation.errors.errors[0] ) {
+                    this.corporateErrors = data.corporation.errors.errors[0].message;
+                    this.corporateErrorClass = (data.corporation.errors.errors[0].severity == data.corporation.errors.ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.corporation.errors.errors[0].severity == data.corporation.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                }
+
+                done++;
+                if (done == 2){
+                    this.validating = false;
+                    let splitted = val.replace(/\s+/g,' ').trim().split(' ');
+                    this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
+                }
             }
-        )
+        );
 
         this.namerService.getHits(this.searchBox.value).subscribe(
-            data => function(data: any){
-                this.fullSearchResults = data.hits ? data.hits : "";
+            (data) => {
+                let results = "";
+                for (var i=0; i<data.hits.length; i++){
+                    let div = "<div>"+data.hits[i].label+"</div>";
+                    results += div;
+                }
+                done++;
+                if (done == 2){
+                    this.validating = false;
+                    let splitted = val.replace(/\s+/g,' ').trim().split(' ');
+                    this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
+                }
+                this.fullSearchResults = results;
             }
         );
     }

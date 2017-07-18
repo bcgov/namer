@@ -12,27 +12,27 @@
        </md-option>
     </md-autocomplete>
 
-    <button md-button (click)="check()" class="btn btn-primary">Check Validity</button>
+    <button md-button (click)="check()" class="btn btn-primary" [disabled]="!validateEnabled">Check Validity</button>
 </div>
 
 <div *ngIf="showValidation">
     <h2>Validation Information</h2>
-    <div class="ui-widget">
+    <div class="ui-widget inline">
         <label for="distinct">Distinct:</label>
-        <input type="text" id="distinct" readonly="readonly" [value]="distinct" />
-        <div class="errorText" [innerHTML]="distinctErrors"></div>
+        <input [class]="distinctErrorClass" type="text" id="distinct" readonly="readonly" [value]="distinct" />
+        <div [class]="distinctErrorClass" [innerHTML]="distinctErrors"></div>
     </div>
 
-    <div class="ui-widget">
+    <div class="ui-widget inline">
         <label for="descriptive">Descriptive:</label>
-        <input type="text" id="descriptive" readonly="readonly" [value]="descriptive" />
-        <div class="errorText" [innerHTML]="descriptiveErrors"></div>
+        <input [class]="descriptiveErrorClass" type="text" id="descriptive" readonly="readonly" [value]="descriptive" />
+        <div [class]="descriptiveErrorClass" [innerHTML]="descriptiveErrors"></div>
     </div>
 
-    <div class="ui-widget">
+    <div class="ui-widget inline">
         <label for="corporate">Corporate:</label>
-        <input type="text" id="corporate" readonly="readonly" [value]="corporate" />
-        <div class="errorText" [innerHTML]="corporateErrors"></div>
+        <input [class]="corporateErrorClass" type="text" id="corporate" readonly="readonly" [value]="corporate" />
+        <div [class]="corporateErrorClass" [innerHTML]="corporateErrors"></div>
     </div>
 
     <h3>Similar Names</h3>

@@ -63,35 +63,47 @@ def validator_swagger():
 def validate():
     stubObj = {
         "corporation": {
-            "errors": [
-                {
-                    "code": 1,
-                    "message": "Test Corp error",
-                    "severity": 1
-                }
-            ],
+            "errors": {
+                "errors": [
+                  {
+                      "code": 1,
+                      "message": "Test corp error",
+                      "severity": 1
+                  }
+                ],
+                "ERROR_VALUE": 2,
+                "WARN_VALUE": 1
+            },
             "valid": True,
             "value": "Ltd."
         },
         "descriptive": {
-            "errors": [
+            "errors": {
+                "errors": [
                   {
                       "code": 1,
                       "message": "Test descriptive error",
                       "severity": 1
                   }
-              ],
+                ],
+                "ERROR_VALUE": 2,
+                "WARN_VALUE": 1
+            },
             "exists": True,
             "value": "Lawnmower"
         },
         "distinct": {
-            "errors": [
-                {
-                    "code": 1,
-                    "message": "Test distinctive error",
-                    "severity": 1
-                }
-            ],
+            "errors": {
+                "errors": [
+                  {
+                      "code": 1,
+                      "message": "Test distinct error",
+                      "severity": 2
+                  }
+                ],
+                "ERROR_VALUE": 2,
+                "WARN_VALUE": 1
+            },
             "exists": True,
             "value": "Bob's"
         }

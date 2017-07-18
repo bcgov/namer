@@ -7,7 +7,7 @@ import 'rxjs/add/operator/map';
 
 
 export class HitResult {
-    hits: Hit[]
+    hits: Hit[];
 }
 
 class Hit {

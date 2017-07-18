@@ -13,17 +13,24 @@ export class ValidationResult {
 }
 
 class CorporationResult {
-    errors: ErrorsObj[];
+    errors: ErrorsObj;
     valid: boolean;
+    value: string;
 }
 
 class DescDistObj {
-    errors: ErrorsObj[];
+    errors: ErrorsObj;
     exists: boolean;
     value: string;
 }
 
 class ErrorsObj {
+    WARN_VALUE: number;
+    ERROR_VALUE: number;
+    errors: ErrorsArr[]
+}
+
+class ErrorsArr{
     code: number;
     message: string;
     severity: number;
@@ -35,7 +42,7 @@ export class ValidatorService {
 
     constructor (private http: Http) {}
 
-    validate(corpName: string): Observable<ValidationResult[]> {
+    validate(corpName: string): Observable<ValidationResult> {
         let url = this.validatorUrl + "/validate";
         let postBody = {name: corpName};
 
@@ -45,8 +52,9 @@ export class ValidatorService {
     }
 
     private extractData(res: Response) {
-        var hitResults: ValidationResult[] = JSON.parse(res.text());
-        return hitResults;
+        var result = JSON.parse(res.text());
+        var validationResults: ValidationResult = result;
+        return validationResults;
     }
 
     private handleError (error: Response | any) {
