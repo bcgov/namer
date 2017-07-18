@@ -1,0 +1,14 @@
+<h1>Namer</h1>
+
+<div class="ui-widget">
+    <label for="search">Search:</label>
+    <md-input-container>
+        <input id="search" type="text" mdInput [formControl]="searchBox" [mdAutocomplete]="auto">
+    </md-input-container>
+
+    <md-autocomplete #auto="mdAutocomplete">
+       <md-option *ngFor="let option of options" [value]="option.value">
+          {{ option.label }}
+       </md-option>
+    </md-autocomplete>
+</div>
