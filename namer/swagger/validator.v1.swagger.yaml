@@ -185,9 +185,18 @@ paths:
 
 definitions:
   errors:
-    type: "array"
-    items:
-      $ref: "#/definitions/errorArray"
+    type: "object"
+    properties:
+      errors:
+        type: "array"
+        items:
+          $ref: "#/definitions/errorArray"
+      WARN_VALUE:
+        type: "number"
+        default: 1
+      ERROR_VALUE:
+        type: "number"
+        default: 2
   corporateName:
     type: "object"
     properties:
