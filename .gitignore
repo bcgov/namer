@@ -112,9 +112,10 @@ ENV/
 # DS_STORE
 .DS_Store
 
-#angular 2 ignores
-**/node_modules
-namer/static/js/app/main.js
-namer/static/js/app/main.js.map
-namer/static/js/app/**/*.js
-namer/static/js/app/**/*.js.map
+# angular 2 ignores
+node_modules/
+*.js
+*.js.map
+!systemjs*.js
+#namer/static/js/app/**/*.js
+#namer/static/js/app/**/*.js.map
