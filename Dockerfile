@@ -15,6 +15,7 @@ RUN npm run build
 
 # Start Server
 WORKDIR /usr/src/app/
+RUN chmod 744 -R /usr/src/app/namer/static/js/app/node_modules
 CMD [ "python", "namer/wsgi.py" ]
 
 # RUN chmod ugo+rwx /usr/src/app/docker-start-script.sh
