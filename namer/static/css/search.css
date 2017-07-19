@@ -61,10 +61,11 @@ md-option.mat-option {
 }
 
 md-option.mat-option span mark {
-    background: yellow;
+    font-weight: bold;
+    # background: yellow;
 }
 
-div.validationWarn{
+div.validationWarn {
     color: orange;
 }
 input.validationWarn {

@@ -1,6 +1,5 @@
 # Base Requirements
 Flask==0.12.2              #BSD License
-pymongo==3.4.0             #Apache2
 PyTrie==0.3                #BSD
 pyyaml==3.12               #MIT
 flask-swaggerui==0.0.1     #MIT
