@@ -191,10 +191,10 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/errorArray"
-      WARN_VALUE:
+      SEVERITY_WARN_VALUE:
         type: "number"
         default: 1
-      ERROR_VALUE:
+      SEVERITY_ERROR_VALUE:
         type: "number"
         default: 2
   corporateName:

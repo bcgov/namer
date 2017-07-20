@@ -4,7 +4,7 @@ import yaml
 from flask import Flask, jsonify, render_template, request
 from flask_swaggerui import render_swaggerui, build_static_blueprint
 from search import Search
-from validate import Validate
+from validator import Validate
 
 app = Flask(__name__)
 app.register_blueprint(build_static_blueprint("swaggerui", __name__))
