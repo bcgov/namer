@@ -25,8 +25,8 @@ class DescDistObj {
 }
 
 class ErrorsObj {
-    WARN_VALUE: number;
-    ERROR_VALUE: number;
+    SEVERITY_WARN_VALUE: number;
+    SEVERITY_ERROR_VALUE: number;
     errors: ErrorsArr[]
 }
 

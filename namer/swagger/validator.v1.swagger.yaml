@@ -12,7 +12,7 @@ info:
 host: ""
 basePath: "/api/validator/v1"
 tags:
-- name: "generic"
+- name: "validate"
   description: "The one call stop"
 - name: "blacklist"
   description: "Calls regarding the black list"
@@ -30,7 +30,7 @@ paths:
   /validate:
     post:
       tags:
-      - "generic"
+      - "validate"
       summary: "Runs all the validation steps and returns a comprehensive JSON Object"
       description: "Runs all the validation steps and returns a comprehensive JSON Object"
       operationId: "validate_post"

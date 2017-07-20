@@ -91,24 +91,24 @@ export class NamerComponent {
                 if ( data.distinct.errors.errors[0] ) {
                     this.distinctErrors = data.distinct.errors.errors[0].message;
                     console.log("distinct severity: " + data.distinct.errors.errors[0].severity);
-                    console.log("distinct error: " + data.distinct.errors.ERROR_VALUE);
-                    console.log("distinct warn: " + data.distinct.errors.WARN_VALUE);
-                    this.distinctErrorClass = (data.distinct.errors.errors[0].severity == data.distinct.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.distinct.errors.errors[0].severity == data.distinct.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                    console.log("distinct error: " + data.distinct.errors.SEVERITY_ERROR_VALUE);
+                    console.log("distinct warn: " + data.distinct.errors.SEVERITY_WARN_VALUE);
+                    this.distinctErrorClass = (data.distinct.errors.errors[0].severity == data.distinct.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.distinct.errors.errors[0].severity == data.distinct.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : "" );
                 }
 
                 this.descriptive = data.descriptive.value;
                 if ( data.descriptive.errors.errors[0] ) {
                     this.descriptiveErrors = data.descriptive.errors.errors[0].message;
-                    this.descriptiveErrorClass = (data.descriptive.errors.errors[0].severity == data.descriptive.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.descriptive.errors.errors[0].severity == data.descriptive.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                    this.descriptiveErrorClass = (data.descriptive.errors.errors[0].severity == data.descriptive.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.descriptive.errors.errors[0].severity == data.descriptive.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : "" );
                 }
 
                 this.corporate = data.corporation.value;
                 if ( data.corporation.errors.errors[0] ) {
                     this.corporateErrors = data.corporation.errors.errors[0].message;
-                    this.corporateErrorClass = (data.corporation.errors.errors[0].severity == data.corporation.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.corporation.errors.errors[0].severity == data.corporation.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                    this.corporateErrorClass = (data.corporation.errors.errors[0].severity == data.corporation.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.corporation.errors.errors[0].severity == data.corporation.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : "" );
                 }
 
                 done++;
