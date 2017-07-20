@@ -39,7 +39,6 @@ class Search(object):
         """
         import csv
 
-        # TODO: Move field constants elsewhere
         index_field = 'CORP_NUM'
         end_event_field = 'END_EVENT_ID'
         name_field = 'CORP_NME'

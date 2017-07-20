@@ -26,8 +26,8 @@ export class NamerService {
         let limit = 20;
 
         let params: URLSearchParams = new URLSearchParams();
-            params.set('q', query);
-            params.set('limit', limit.toString());
+        params.set('q', query);
+        params.set('limit', limit.toString());
 
         let requestOptions = new RequestOptions();
         requestOptions.search = params;

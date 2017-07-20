@@ -1,7 +1,7 @@
 ---
 swagger: "2.0"
 info:
-  description: "Corporate Name Validator (best guess)"
+  description: "Corporate Name Validator"
   version: "1.0.0"
   title: "Corporate Name Validator"
   contact:
@@ -13,7 +13,7 @@ host: ""
 basePath: "/api/validator/v1"
 tags:
 - name: "validate"
-  description: "The one call stop"
+  description: "Calls regarding overall validation"
 - name: "blacklist"
   description: "Calls regarding the black list"
 - name: "greylist"
@@ -28,19 +28,19 @@ schemes:
 - "http"
 paths:
   /validate:
-    post:
+    get:
       tags:
       - "validate"
       summary: "Runs all the validation steps and returns a comprehensive JSON Object"
       description: "Runs all the validation steps and returns a comprehensive JSON Object"
-      operationId: "validate_post"
+      operationId: "validate"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "corporateName"
+      - in: "query"
+        name: "q"
         description: "The name to validate against"
         required: true
         schema:
@@ -54,19 +54,19 @@ paths:
             $ref: "#/definitions/errorResponse"
 
   /blacklist:
-    post:
+    get:
       tags:
       - "blacklist"
       summary: "Checks a string for occurances of blacklist"
       description: "Checks a string for occurances of blacklisted words"
-      operationId: "blacklist_post"
+      operationId: "blacklist"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "corporateName"
+      - in: "query"
+        name: "q"
         description: "The string to check against the black list"
         required: true
         schema:
@@ -80,19 +80,19 @@ paths:
             $ref: "#/definitions/errorResponse"
 
   /greylist:
-    post:
+    get:
       tags:
       - "greylist"
       summary: "Checks a string for occurances of greylist"
       description: "Checks a string for occurances of greylist words"
-      operationId: "greylist_post"
+      operationId: "greylist"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "corporateName"
+      - in: "query"
+        name: "q"
         description: "The string to check against the grey list"
         required: true
         schema:
@@ -106,19 +106,19 @@ paths:
             $ref: "#/definitions/errorResponse"
 
   /corporate:
-    post:
+    get:
       tags:
       - "corporate"
       summary: "Checks a string to see if it a valid corporation type"
       description: "Checks a string to see if it a valid corporation type"
-      operationId: "corporate_post"
+      operationId: "corporate"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "corporateString"
+      - in: "query"
+        name: "q"
         description: "The string to check against the grey list"
         required: true
         schema:
@@ -132,19 +132,19 @@ paths:
             $ref: "#/definitions/errorResponse"
 
   /descriptive:
-    post:
+    get:
       tags:
       - "descriptive"
       summary: "Checks a string to see if it contains a valid descriptive for corporate names"
       description: "Checks a string to see if it contains a valid descriptive for corporate names"
-      operationId: "descriptive_post"
+      operationId: "descriptive"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "corporateString"
+      - in: "query"
+        name: "q"
         description: "The string to check for valid descriptive portion"
         required: true
         schema:
@@ -158,19 +158,19 @@ paths:
             $ref: "#/definitions/errorResponse"
 
   /distinctive:
-    post:
+    get:
       tags:
       - "distinctive"
       summary: "Checks a string to see if it contains a valid distinctive for corporate names"
       description: "Checks a string to see if it contains a valid distinctive for corporate names, note that this probably means not all the string was consumed with descriptives"
-      operationId: "distinctive_post"
+      operationId: "distinctive"
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "corporateString"
+      - in: "query"
+        name: "q"
         description: "The string to check for valid descriptive portion"
         required: true
         schema:

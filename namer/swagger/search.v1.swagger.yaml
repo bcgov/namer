@@ -9,11 +9,11 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "namer-cddi-dlt-test.pathfinder.gov.bc.ca"
+host: ""
 basePath: "/api/search/v1"
 tags:
 - name: "search"
-  description: "The search calls"
+  description: "Calls regarding name search"
 schemes:
 - "http"
 paths:
@@ -23,7 +23,7 @@ paths:
       - "search"
       summary: "Runs a search on the string against the existing data"
       description: "Runs a search on the string against the existing data"
-      operationId: "search_post"
+      operationId: "search"
       consumes:
       - "application/json"
       produces:
@@ -37,7 +37,7 @@ paths:
           $ref: "#/definitions/searchTerm"
       - in: "query"
         name: "limit"
-        default: 10
+        default: 20
         description: "The limit of the search"
         required: false
         schema:

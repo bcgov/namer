@@ -9,10 +9,10 @@ class Validate(object):
         pass
 
     @staticmethod
-    def corporate(value):
+    def corporate(query=None):
         """
         Checks a string to see if it a valid corporation type
-        :param value: String to validate
+        :param query: String to validate
         :return: Dictionary containing result of validating corporation type
         """
         stub_obj = {
@@ -28,18 +28,18 @@ class Validate(object):
                 ]
             },
             "valid": True,
-            "value": "Ltd."
+            "value": query
         }
 
         return stub_obj
 
     @staticmethod
-    def validate():
+    def validate(query=None):
         """
         Runs all the validation steps and returns a comprehensive dictionary
         :return: Dictionary containing results of all validation steps
         """
-        corp_result = Validate.corporate('')
+        corp_result = Validate.corporate(query)
         desc_result = {
             "errors": {
                 "SEVERITY_ERROR_VALUE": 2,
