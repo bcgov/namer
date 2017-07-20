@@ -10,14 +10,15 @@ RUN apt-get install -y nodejs
 COPY requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r /usr/src/app/requirements.txt
 
-# Copy Source Code
-COPY . /usr/src/app
-
-# Build NPM
+# Build NPM Dependencies
+COPY namer/static/js/app/package.json /usr/src/app/namer/static/js/app/
 WORKDIR /usr/src/app/namer/static/js/app/
 RUN npm install
-RUN npm run build
 RUN chmod -R 777 node_modules
+
+# Copy and Compile Source Code
+COPY . /usr/src/app
+RUN npm run build
 
 # Start Server
 WORKDIR /usr/src/app/
