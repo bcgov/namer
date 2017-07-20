@@ -13,10 +13,10 @@ class Search(object):
 
     def __init__(self):
         """Builds the searchtrie from input data into memory"""
-        if self.__search_trie is None:
+        if Search.__search_trie is None:
             file_path = os.path.join(os.path.dirname(__file__), '..', 'files',
                                      'data-100k.csv')
-            self._load_data(file_path)
+            Search._load_data(file_path)
 
     @staticmethod
     def _clean_string(string):
