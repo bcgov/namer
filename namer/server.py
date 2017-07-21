@@ -4,7 +4,7 @@ import yaml
 from flask import Flask, jsonify, render_template, request
 from flask_swaggerui import render_swaggerui, build_static_blueprint
 from search import Search
-from validator import Validate
+from validator import Validator
 
 app = Flask(__name__)
 app.register_blueprint(build_static_blueprint("swaggerui", __name__))
@@ -84,7 +84,7 @@ def validator_corporate():
     """
     query = request.args.get('q')
 
-    result = Validate.corporate(query)
+    result = Validator.corporate(query)
     return jsonify(result)
 
 
@@ -96,7 +96,7 @@ def validator_validate():
     """
     query = request.args.get('q')
 
-    result = Validate.validate(query)
+    result = Validator.validate(query)
     return jsonify(result)
 
 if __name__ == "__main__":
