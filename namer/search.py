@@ -61,7 +61,7 @@ class Search:
 
                     # Build Search Trie
                     # Remove non-alphanumeric characters and split words
-                    clean_name = utils.clean_string(row[name_field])
+                    clean_name = utils.re_alphanum(row[name_field])
                     for word in clean_name.split():
                         if word not in (None, ''):
                             # Create all possible suffixes of word
@@ -141,11 +141,11 @@ class Search:
         if query in (None, ''):
             return name_list
 
-        clean_q = utils.clean_string(query)
+        clean_q = utils.re_alphanum(query)
         if clean_q not in (None, ''):
             # Filter results that do not contain all values in query
             name_list = [name for name in name_list if all(
-                term in utils.clean_string(name) for term in clean_q.split())]
+                term in utils.re_alphanum(name) for term in clean_q.split())]
 
             # Bring strings with matching prefix to the top
             starts_with_list = \
@@ -168,7 +168,7 @@ class Search:
         hits = list()
         if query not in (None, ''):
             query = query.upper()
-            clean_q = utils.clean_string(query)
+            clean_q = utils.re_alphanum(query)
             results = set()
             for term in clean_q.split():
                 if len(results) == 0:

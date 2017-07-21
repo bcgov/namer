@@ -1,4 +1,4 @@
-def clean_string(string):
+def re_alphanum(string):
     """
     Removes non-alphanumeric characters
     :param string: Input string

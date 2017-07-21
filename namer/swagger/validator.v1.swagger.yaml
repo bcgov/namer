@@ -119,7 +119,7 @@ paths:
       parameters:
       - in: "query"
         name: "q"
-        description: "The string to check against the grey list"
+        description: "The string to check against the corporation type list"
         required: true
         schema:
           $ref: "#/definitions/corporateString"
@@ -171,7 +171,7 @@ paths:
       parameters:
       - in: "query"
         name: "q"
-        description: "The string to check for valid descriptive portion"
+        description: "The string to check for valid distinctive portion"
         required: true
         schema:
           $ref: "#/definitions/corporateString"
