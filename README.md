@@ -24,9 +24,7 @@ For Namer to work, both the front-end and back-end must be started.
 
 1. `cd namer/static/js/app`
 2. `npm install`
-3. Run the following depending on your environment:
-    - Deployment: `npm run build`
-    - Development: `npm start`
+3. `npm run build`
 
 **Python (Back End)**
 

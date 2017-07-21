@@ -5,20 +5,20 @@ logger = logging.getLogger(__name__)
 
 
 class Validator:
-    __severity_error_val = 2
-    __severity_warn_val = 1
+    severity_error_val = 2
+    severity_warn_val = 1
 
     @staticmethod
     def _create_errors_obj():
         return dict(
-            errors={'SEVERITY_ERROR_VALUE': Validator.__severity_error_val,
-                    'SEVERITY_WARN_VALUE': Validator.__severity_warn_val,
+            errors={'SEVERITY_ERROR_VALUE': Validator.severity_error_val,
+                    'SEVERITY_WARN_VALUE': Validator.severity_warn_val,
                     'errors': list()}, value=None)
 
     @staticmethod
     def corporate(query=None):
         """
-        Checks a string to see if it a valid corporation type
+        Checks a string to see if it is a valid corporation type
         :param query: String to validate
         :return: Dictionary containing result of validating corporation type
         """
@@ -60,7 +60,7 @@ class Validator:
         if query in (None, ''):
             error = dict(code=0,
                          message="Empty value",
-                         severity=Validator.__severity_error_val)
+                         severity=Validator.severity_error_val)
 
             result['errors']['errors'].append(error)
             result['valid'] = False
@@ -72,7 +72,7 @@ class Validator:
             if strip_q.find(' ') != -1:
                 error = dict(code=1,
                              message="More than 1 word",
-                             severity=Validator.__severity_error_val)
+                             severity=Validator.severity_error_val)
 
                 result['errors']['errors'].append(error)
                 result['valid'] = False
@@ -81,10 +81,56 @@ class Validator:
             if strip_q not in corp_types:
                 error = dict(code=2,
                              message="Not a valid corporation type",
-                             severity=Validator.__severity_error_val)
+                             severity=Validator.severity_error_val)
 
                 result['errors']['errors'].append(error)
                 result['valid'] = False
+
+        return result
+
+    @staticmethod
+    def descriptive(query=None):
+        """
+        Checks a string to see if it contains a valid descriptive for corporate
+        names
+        :param query: String to validate
+        :return: Dictionary containing result of validating descriptive
+        """
+        desc_types = list()
+
+        # TODO Add CSV parsing routine to load desc_types
+
+        result = Validator._create_errors_obj()
+        result['value'] = query
+        result['exists'] = True
+        if query in (None, ''):
+            error = dict(code=0,
+                         message="Empty value",
+                         severity=Validator.severity_error_val)
+
+            result['errors']['errors'].append(error)
+            result['exists'] = False
+
+        else:
+            strip_q = query.strip()
+
+            # More than 1 word
+            if strip_q.find(' ') != -1:
+                error = dict(code=1,
+                             message="More than 1 word",
+                             severity=Validator.severity_error_val)
+
+                result['errors']['errors'].append(error)
+                result['exists'] = False
+
+            # Doesn't contain descriptive value
+            if strip_q not in desc_types:
+                error = dict(code=2,
+                             message="No descriptive value",
+                             severity=Validator.severity_error_val)
+
+                result['errors']['errors'].append(error)
+                result['exists'] = False
 
         return result
 
@@ -97,17 +143,11 @@ class Validator:
         result = dict()
         if query not in (None, ''):
             split_q = query.split()
+
+            # TODO Add smarter line parsing logic
             corp_result = Validator.corporate(split_q[-1])
 
-            # TODO Stubs
-            desc_result = Validator._create_errors_obj()
-            desc_result['value'] = "Descriptive"
-            desc_result['exists'] = True
-            desc_result['errors']['errors'].append(
-                dict(code=0, message=None, severity=1))
-            desc_result['errors']['errors'][0]['message'] = "Descriptive Error"
-            desc_result['errors']['errors'][0]['severity'] = \
-                Validator.__severity_error_val
+            desc_result = Validator.descriptive(split_q[1])
 
             # TODO Stubs
             dist_result = Validator._create_errors_obj()
