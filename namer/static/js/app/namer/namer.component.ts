@@ -1,14 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef} from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { NamerService, HitResult } from './namer.service.js';
-import { ValidatorService, ValidationResult } from './validator.service.js';
-
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/operator/map';
+import { NamerService, HitResult } from './namer.service';
+import { ValidatorService, ValidationResult } from './validator.service';
 
 @Component({
     selector: 'namer',
-    templateUrl: '/static/js/app/namer/namer.template.html',
+    templateUrl: './namer.template.html',
+    host: {
+        '(document:keydown)': 'keymonitor($event)'
+    },
     providers: [NamerService, ValidatorService]
 })
 
@@ -16,6 +16,7 @@ export class NamerComponent {
 
     ERROR_CLASS = "validationError";
     WARN_CLASS = "validationWarn";
+    PASS_CLASS = "validationPassed";
 
     searchBox: FormControl;
     options: any;
@@ -34,18 +35,27 @@ export class NamerComponent {
     fullSearchResults: string;
     validateEnabled: boolean;
 
-    constructor(private namerService : NamerService, private validatorService: ValidatorService) {
+    constructor(private namerService : NamerService, private validatorService: ValidatorService, private changeDetector: ChangeDetectorRef) {
         this.searchBox = new FormControl();
         this.showValidation = false;
         this.validateEnabled = false;
         this.validating = false;
         this.searchBox.valueChanges.subscribe(
-            data => this.getHits(data)
+            data =>  this.getHits(data)
         )
     }
 
+    keymonitor(event: any){
+        console.log("Hello");
+        if ((event.keyCode == 13) && (this.validateEnabled) && (!this.validating) ){
+            this.check();
+        }
+        console.log("Key press triggering change");
+        this.changeDetector.detectChanges();
+    }
+
     getHits(val: string) {
-        if (val.length < 3 ){
+        if (val.length < 2 ){
             this.options = [];
             this.validateEnabled = false;
             return;
@@ -55,7 +65,10 @@ export class NamerComponent {
         this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
 
         this.namerService.getHits(val).subscribe(
-            data => this.options = data.hits ? data.hits : []
+            (data) => {
+                this.options = data.hits ? data.hits : [];
+                this.changeDetector.detectChanges();
+            }
         );
     }
 
@@ -63,7 +76,6 @@ export class NamerComponent {
         let value = this.searchBox.value.toUpperCase();
         let mark = "<mark>" + value + "</mark>";
         val = val.replace(value, mark);
-
         return val;
     }
 
@@ -73,42 +85,41 @@ export class NamerComponent {
         this.showValidation = true;
         this.distinct = "";
         this.distinctErrors = "";
-        this.distinctErrorClass = "";
+        this.distinctErrorClass = this.PASS_CLASS;
         this.descriptive = "";
         this.descriptiveErrors = "";
-        this.descriptiveErrorClass = "";
+        this.descriptiveErrorClass = this.PASS_CLASS;
         this.corporate = "";
         this.corporateErrors = "";
-        this.corporateErrorClass = "";
+        this.corporateErrorClass = this.PASS_CLASS;
         this.fullSearchResults = "";
 
         let done = 0;
 
         this.validatorService.validate(this.searchBox.value).subscribe(
             (data) => {
-                console.log(data);
                 this.distinct = data.distinct.value;
-                if ( data.distinct.errors.errors[0] ) {
-                    this.distinctErrors = data.distinct.errors.errors[0].message;
-                    console.log("distinct severity: " + data.distinct.errors.errors[0].severity);
-                    console.log("distinct error: " + data.distinct.errors.ERROR_VALUE);
-                    console.log("distinct warn: " + data.distinct.errors.WARN_VALUE);
-                    this.distinctErrorClass = (data.distinct.errors.errors[0].severity == data.distinct.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.distinct.errors.errors[0].severity == data.distinct.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                this.distinctErrors = "";
+                for (var i=0; i<data.distinct.errors.errors.length; i++){
+                    this.distinctErrors += "<div>" + data.distinct.errors.errors[i].message + "</div>";
+                    this.distinctErrorClass = (data.distinct.errors.errors[i].severity == data.distinct.errors.ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.distinct.errors.errors[i].severity == data.distinct.errors.WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 this.descriptive = data.descriptive.value;
-                if ( data.descriptive.errors.errors[0] ) {
-                    this.descriptiveErrors = data.descriptive.errors.errors[0].message;
-                    this.descriptiveErrorClass = (data.descriptive.errors.errors[0].severity == data.descriptive.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.descriptive.errors.errors[0].severity == data.descriptive.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                this.descriptiveErrors = "";
+                for (var i=0; i<data.descriptive.errors.errors.length; i++){
+                    this.descriptiveErrors += "<div>" + data.descriptive.errors.errors[i].message + "</div>";
+                    this.descriptiveErrorClass = (data.descriptive.errors.errors[i].severity == data.descriptive.errors.ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.descriptive.errors.errors[i].severity == data.descriptive.errors.WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 this.corporate = data.corporation.value;
-                if ( data.corporation.errors.errors[0] ) {
-                    this.corporateErrors = data.corporation.errors.errors[0].message;
-                    this.corporateErrorClass = (data.corporation.errors.errors[0].severity == data.corporation.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.corporation.errors.errors[0].severity == data.corporation.errors.WARN_VALUE) ? this.WARN_CLASS : "" );
+                this.corporateErrors = "";
+                for (var i=0; i<data.corporation.errors.errors.length; i++){
+                    this.corporateErrors += "<div>" + data.corporation.errors.errors[i].message + "</div>";
+                    this.corporateErrorClass = (data.corporation.errors.errors[i].severity == data.corporation.errors.ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.corporation.errors.errors[i].severity == data.corporation.errors.WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 done++;
@@ -117,6 +128,7 @@ export class NamerComponent {
                     let splitted = val.replace(/\s+/g,' ').trim().split(' ');
                     this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
                 }
+                this.changeDetector.detectChanges();
             }
         );
 
@@ -134,6 +146,7 @@ export class NamerComponent {
                     this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
                 }
                 this.fullSearchResults = results;
+                this.changeDetector.detectChanges();
             }
         );
     }

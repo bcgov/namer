@@ -116,3 +116,4 @@ node_modules/
 !systemjs*.js
 #namer/static/js/app/**/*.js
 #namer/static/js/app/**/*.js.map
+namer/static/js/app/aot/

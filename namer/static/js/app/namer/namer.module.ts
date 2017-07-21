@@ -5,7 +5,7 @@ import { MdInputModule, MdAutocompleteModule } from '@angular/material';
 import { HttpModule, JsonpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { NamerComponent } from './namer.component.js';
+import { NamerComponent } from './namer.component';
 
 @NgModule({
     imports:      [

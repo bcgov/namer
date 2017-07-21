@@ -33,11 +33,6 @@ class Validate(object):
             "descriptive": {
                 "errors": {
                     "errors": [
-                        {
-                            "code": 1,
-                            "message": "Test descriptive error",
-                            "severity": 1
-                        }
                     ],
                     "ERROR_VALUE": 2,
                     "WARN_VALUE": 1
@@ -51,6 +46,11 @@ class Validate(object):
                         {
                             "code": 1,
                             "message": "Test distinct error",
+                            "severity": 2
+                        },
+                        {
+                            "code": 1,
+                            "message": "Test distinct error 2",
                             "severity": 2
                         }
                     ],

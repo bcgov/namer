@@ -2,7 +2,7 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "namer-build"
+    "name": "namer-build-dev"
   },
   "objects": [
     {
@@ -42,7 +42,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:stable"
+            "name": "${NAME}:latest"
           }
         },
         "triggers": [
@@ -71,7 +71,7 @@
       "displayName": "Name",
       "description": "The name assigned to all of the frontend objects defined in this template.",
       "required": true,
-      "value": "namer"
+      "value": "namer-dev"
     },
     {
       "name": "NAMESPACE",
@@ -91,7 +91,7 @@
       "name": "SOURCE_REPOSITORY_REF",
       "displayName": "Git Reference",
       "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch.",
-      "value": "master"
+      "value": "develop"
     },
     {
       "name": "CONTEXT_DIR",

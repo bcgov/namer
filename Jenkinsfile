@@ -2,8 +2,9 @@ node{
     stage('build') {
         echo "Building..."
         openshiftBuild bldCfg: 'namer', showBuildLogs: 'true', waitTime: 3600000
-        openshiftTag destStream: 'namer', verbose: 'true', destTag: '$BUILD_ID', srcStream: 'namer', srcTag: 'latest'
-        openshiftTag destStream: 'namer', verbose: 'true', destTag: 'dev', srcStream: 'namer', srcTag: 'latest'
+        openshiftTag destStream: 'namer', verbose: 'true', destTag: 'stable', srcStream: 'namer', srcTag: 'latest'
+        openshiftBuild bldCfg: 'namer-dev', showBuildLogs: 'true', waitTime: 3600000
+        openshiftTag destStream: 'namer', verbose: 'true', destTag: '$BUILD_ID', srcStream: 'namer-dev', srcTag: 'latest'
     }
 
     stage('deploy-test') {

@@ -62,7 +62,6 @@ md-option.mat-option {
 
 md-option.mat-option span mark {
     font-weight: bold;
-    # background: yellow;
 }
 
 div.validationWarn {
@@ -79,6 +78,15 @@ input.validationError {
     border: 1px solid red;
 }
 
+div.validationPassed {
+    color: green;
+}
+input.validationPassed {
+    border: 1px solid green;
+}
+
 div.ui-widget.inline {
     display: inline-block;
+    vertical-align: top;
 }
+

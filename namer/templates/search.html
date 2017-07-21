@@ -15,17 +15,8 @@
             });
         </script>
 
-        <!-- Polyfills -->
-        <script src="/static/js/app/node_modules/core-js/client/shim.min.js"></script>
-        <script src="/static/js/app/node_modules/zone.js/dist/zone.min.js"></script>
-        <script src="/static/js/app/node_modules/systemjs/dist/system.src.js"></script>
-        <script src="/static/js/app/systemjs.config.js"></script>
-
         <link rel="stylesheet" href="/static/css/search.css">
         <link rel="stylesheet" href="/static/js/app/node_modules/@angular/material/prebuilt-themes/indigo-pink.css">
-        <script>
-          System.import('/static/js/app/main.js').catch(function(err){ console.error(err); });
-        </script>
     </head>
 
     <body>
@@ -33,5 +24,6 @@
             <namer>Loading CNR Namer</namer>
         </div>
     </body>
+    <script src="/static/js/app/build.js"></script>
 
 </html>

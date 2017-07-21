@@ -94,6 +94,13 @@
             }
           },
           "spec": {
+            "volumes":{
+              "name": "namer-pv0",
+              "persistentVolumeClaim":{
+                "claimName": "namer-pv0"
+              }
+            },
+
             "containers": [
               {
                 "name": "namer",
@@ -103,6 +110,10 @@
                     "containerPort": 5000
                   }
                 ],
+                "volumeMounts": {
+                  "mountPath": "/usr/src/app/files",
+                  "name": "namer-pv0"
+                },
                 "readinessProbe": {
                   "timeoutSeconds": 3,
                   "initialDelaySeconds": 3,
@@ -160,7 +171,7 @@
       "displayName": "Memory Limit",
       "required": true,
       "description": "Maximum amount of memory the Flask container can use.",
-      "value": "512Mi"
+      "value": "4098Mi"
     },
     {
       "name": "APPLICATION_DOMAIN",
