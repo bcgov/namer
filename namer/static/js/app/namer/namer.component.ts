@@ -46,11 +46,10 @@ export class NamerComponent {
     }
 
     keymonitor(event: any){
-        console.log("Hello");
         if ((event.keyCode == 13) && (this.validateEnabled) && (!this.validating) ){
             this.check();
         }
-        console.log("Key press triggering change");
+        console.log("Key press - Triggering change");
         this.changeDetector.detectChanges();
     }
 
