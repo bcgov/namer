@@ -116,6 +116,8 @@ ENV/
 node_modules/
 *.js
 *.js.map
+!rollup-config.js
+!karma.conf.js
 !systemjs*.js
 #namer/static/js/app/**/*.js
 #namer/static/js/app/**/*.js.map
