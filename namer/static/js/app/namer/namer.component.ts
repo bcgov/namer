@@ -101,24 +101,24 @@ export class NamerComponent {
                 this.distinctErrors = "";
                 for (var i=0; i<data.distinct.errors.errors.length; i++){
                     this.distinctErrors += "<div>" + data.distinct.errors.errors[i].message + "</div>";
-                    this.distinctErrorClass = (data.distinct.errors.errors[i].severity == data.distinct.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.distinct.errors.errors[i].severity == data.distinct.errors.WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
+                    this.distinctErrorClass = (data.distinct.errors.errors[i].severity == data.distinct.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.distinct.errors.errors[i].severity == data.distinct.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 this.descriptive = data.descriptive.value;
                 this.descriptiveErrors = "";
                 for (var i=0; i<data.descriptive.errors.errors.length; i++){
                     this.descriptiveErrors += "<div>" + data.descriptive.errors.errors[i].message + "</div>";
-                    this.descriptiveErrorClass = (data.descriptive.errors.errors[i].severity == data.descriptive.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.descriptive.errors.errors[i].severity == data.descriptive.errors.WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
+                    this.descriptiveErrorClass = (data.descriptive.errors.errors[i].severity == data.descriptive.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.descriptive.errors.errors[i].severity == data.descriptive.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 this.corporate = data.corporation.value;
                 this.corporateErrors = "";
                 for (var i=0; i<data.corporation.errors.errors.length; i++){
                     this.corporateErrors += "<div>" + data.corporation.errors.errors[i].message + "</div>";
-                    this.corporateErrorClass = (data.corporation.errors.errors[i].severity == data.corporation.errors.ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.corporation.errors.errors[i].severity == data.corporation.errors.WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
+                    this.corporateErrorClass = (data.corporation.errors.errors[i].severity == data.corporation.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (data.corporation.errors.errors[i].severity == data.corporation.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 done++;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
@@ -25,8 +25,8 @@ class DescDistObj {
 }
 
 class ErrorsObj {
-    WARN_VALUE: number;
-    ERROR_VALUE: number;
+    SEVERITY_WARN_VALUE: number;
+    SEVERITY_ERROR_VALUE: number;
     errors: ErrorsArr[]
 }
 
@@ -42,11 +42,16 @@ export class ValidatorService {
 
     constructor (private http: Http) {}
 
-    validate(corpName: string): Observable<ValidationResult> {
+    validate(query: string): Observable<ValidationResult> {
         let url = this.validatorUrl + "/validate";
-        let postBody = {name: corpName};
 
-        return this.http.post(url, postBody)
+        let params: URLSearchParams = new URLSearchParams();
+        params.set('q', query);
+
+        let requestOptions = new RequestOptions();
+        requestOptions.search = params;
+
+        return this.http.get(url, requestOptions)
                     .map(this.extractData)
                     .catch(this.handleError);
     }
