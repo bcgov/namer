@@ -76,7 +76,7 @@
                       "from": {
                           "kind": "ImageStreamTag",
                           "namespace": "${APP_IMAGE_NAMESPACE}",
-                          "name": "namer:${APP_DEPLOYMENT_TAG}"
+                          "name": "${NAME}:${APP_DEPLOYMENT_TAG}"
                       }
                   }
               },
