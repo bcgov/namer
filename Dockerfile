@@ -16,9 +16,12 @@ WORKDIR /usr/src/app/namer/static/js/app/
 RUN npm install
 RUN chmod -R 777 node_modules
 
-# Copy and Compile Source Code
-COPY . /usr/src/app
+# Copy and Compile Angular Code
+COPY namer/static /usr/src/app/namer/static
 RUN npm run build
+
+# Copy remaining Source Code
+COPY . /usr/src/app
 
 # Start Server
 WORKDIR /usr/src/app/
