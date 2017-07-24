@@ -88,6 +88,18 @@ def validator_corporate():
     return jsonify(result)
 
 
+@app.route("/api/validator/v1/descriptive", methods=['GET'])
+def validator_descriptive():
+    """
+    Returns a JSON response containing the results of descriptive validation
+    :return: JSON Response of validation results
+    """
+    query = request.args.get('q')
+
+    result = Validator.descriptive(query)
+    return jsonify(result)
+
+
 @app.route("/api/validator/v1/validate", methods=['GET'])
 def validator_validate():
     """

@@ -109,8 +109,8 @@ paths:
     get:
       tags:
       - "corporate"
-      summary: "Checks a string to see if it a valid corporation type"
-      description: "Checks a string to see if it a valid corporation type"
+      summary: "Checks a string to see if it is a valid corporation type"
+      description: "Checks a string to see if it is a valid corporation type"
       operationId: "corporate"
       consumes:
       - "application/json"

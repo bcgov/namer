@@ -5,7 +5,7 @@ import utils
 
 from pytrie import SortedStringTrie as Trie
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Search:
@@ -39,10 +39,10 @@ class Search:
         Search.__search_trie = Trie()
         Search.__cached_name = dict()
         if not os.path.isfile(file_path):
-            logger.warning('File not found. Empty search trie instantiated')
+            log.warning('File not found. Empty search trie instantiated')
             return
 
-        with open(file_path) as file:
+        with open(file_path, newline='') as file:
             reader = csv.DictReader(file, delimiter=';',
                                     quoting=csv.QUOTE_NONE)
             try:
@@ -74,8 +74,8 @@ class Search:
                                     row[index_field])
 
             except UnicodeDecodeError:
-                logger.error('Unexpected input at line %s', reader.line_num)
-        logger.info('Loaded and indexed data')
+                log.error('Unexpected input at line %s', reader.line_num)
+        log.info('Loaded and indexed name data')
 
     @staticmethod
     def _trie_search(prefix):
@@ -86,10 +86,10 @@ class Search:
         """
         results = set()
         try:
-            logger.debug('Prefix Matches: %s',
-                         Search.__search_trie.keys(prefix))
-            logger.debug('Longest Prefix: %s',
-                         Search.__search_trie.longest_prefix(prefix))
+            log.debug('Prefix Matches: %s',
+                      Search.__search_trie.keys(prefix))
+            log.debug('Longest Prefix: %s',
+                      Search.__search_trie.longest_prefix(prefix))
 
             for result in Search.__search_trie.values(prefix):
                 results.update(result)  # Union
@@ -195,7 +195,6 @@ class Search:
         """
         from timeit import default_timer as timer
 
-        # TODO: Move logging infrastructure to proper place
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -207,11 +206,11 @@ class Search:
             results = Search.search(argv[1])
             search_end = timer()
 
-            logger.info('Results: %s', results)
-            logger.info('Data load time: %s', str(load_end - load_start))
-            logger.info('Search time: %s', str(search_end - search_start))
+            log.info('Results: %s', results)
+            log.info('Data load time: %s', str(load_end - load_start))
+            log.info('Search time: %s', str(search_end - search_start))
         else:
-            logger.error('No search term specified')
+            log.error('No search term specified')
 
 if __name__ == "__main__":
     Search.main(sys.argv)
