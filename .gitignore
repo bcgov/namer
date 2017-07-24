@@ -113,12 +113,9 @@ ENV/
 .DS_Store
 
 # angular 2 ignores
+aot/
 node_modules/
 *.js
 *.js.map
 !rollup-config.js
 !karma.conf.js
-!systemjs*.js
-#namer/static/js/app/**/*.js
-#namer/static/js/app/**/*.js.map
-namer/static/js/app/aot/

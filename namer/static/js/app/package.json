@@ -4,16 +4,16 @@
   "description": "CNR Namer",
   "scripts": {
     "test:once": "karma start karma.conf.js --single-run",
-    "build": "./node_modules/.bin/ngc -p tsconfig-aot.json; ./node_modules/.bin/rollup -c rollup-config.js",
+    "build": "ngc -p tsconfig-aot.json && rollup -c rollup-config.js",
     "build:watch": "tsc -p ./ -w",
     "start": "npm run build",
     "dev": "npm run build",
-    "test": "concurrently \"npm run build\" \"karma start karma.conf.js\"",
+    "test": "concurrently 'npm run build' 'karma start karma.conf.js'",
     "lint": "tslint ./**/*.ts -t verbose"
   },
   "keywords": [],
   "author": "",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
     "@angular/animations": "~4.2.0",
     "@angular/cdk": "^2.0.0-beta.8",

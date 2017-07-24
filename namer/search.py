@@ -1,33 +1,26 @@
 import logging
 import os
 import sys
+import utils
 
 from pytrie import SortedStringTrie as Trie
 
 logger = logging.getLogger(__name__)
 
 
-class Search(object):
+class Search:
     __search_trie = None
     __cached_name = None
 
-    def __init__(self):
-        """Builds the searchtrie from input data into memory"""
+    def __new__(cls):
+        """
+        Indexes data into search_trie and caches names into memory
+        :return: None
+        """
         if Search.__search_trie is None:
             file_path = os.path.join(os.path.dirname(__file__), '..', 'files',
                                      'data-100k.csv')
             Search._load_data(file_path)
-
-    @staticmethod
-    def _clean_string(string):
-        """
-        Removes non-alphanumeric characters
-        :param string: Input string
-        :return: Sanitized string
-        """
-        import re
-
-        return re.sub(r'[^a-zA-Z\d\s]', '', string)
 
     @staticmethod
     def _load_data(file_path):
@@ -39,7 +32,6 @@ class Search(object):
         """
         import csv
 
-        # TODO: Move field constants elsewhere
         index_field = 'CORP_NUM'
         end_event_field = 'END_EVENT_ID'
         name_field = 'CORP_NME'
@@ -69,7 +61,7 @@ class Search(object):
 
                     # Build Search Trie
                     # Remove non-alphanumeric characters and split words
-                    clean_name = Search._clean_string(row[name_field])
+                    clean_name = utils.re_alphanum(row[name_field])
                     for word in clean_name.split():
                         if word not in (None, ''):
                             # Create all possible suffixes of word
@@ -149,12 +141,11 @@ class Search(object):
         if query in (None, ''):
             return name_list
 
-        clean_q = Search._clean_string(query)
+        clean_q = utils.re_alphanum(query)
         if clean_q not in (None, ''):
-            # Filter results that do not contain values in query_list
-            for term in clean_q.split():
-                if term not in (None, ''):
-                    name_list = [name for name in name_list if term in name]
+            # Filter results that do not contain all values in query
+            name_list = [name for name in name_list if all(
+                term in utils.re_alphanum(name) for term in clean_q.split())]
 
             # Bring strings with matching prefix to the top
             starts_with_list = \
@@ -177,7 +168,7 @@ class Search(object):
         hits = list()
         if query not in (None, ''):
             query = query.upper()
-            clean_q = Search._clean_string(query)
+            clean_q = utils.re_alphanum(query)
             results = set()
             for term in clean_q.split():
                 if len(results) == 0:

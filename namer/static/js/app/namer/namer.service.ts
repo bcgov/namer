@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { Http, RequestOptions, Response, URLSearchParams } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
@@ -18,15 +18,21 @@ class Hit {
 
 @Injectable()
 export class NamerService {
-    private namerUrl = '/api/search/v1/search?q=';  // URL to web API
+    private namerUrl = '/api/search/v1/search';  // URL to web API
 
     constructor (private http: Http) {}
 
     getHits(query: string): Observable<HitResult> {
         let limit = 20;
-        let url = this.namerUrl + query + "&limit=" + limit;
 
-        return this.http.get(url)
+        let params: URLSearchParams = new URLSearchParams();
+        params.set('q', query);
+        params.set('limit', limit.toString());
+
+        let requestOptions = new RequestOptions();
+        requestOptions.search = params;
+
+        return this.http.get(this.namerUrl, requestOptions)
                     .map(this.extractData)
                     .catch(this.handleError);
     }
