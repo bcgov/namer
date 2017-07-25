@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import logging
 import os
 import sys
@@ -42,7 +43,7 @@ class Search:
             log.warning('File not found. Empty search trie instantiated')
             return
 
-        with open(file_path, newline='') as file:
+        with open(file_path, newline='', encoding='utf-8') as file:
             reader = csv.DictReader(file, delimiter=';',
                                     quoting=csv.QUOTE_NONE)
             try:

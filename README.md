@@ -10,6 +10,17 @@ Rapid Name Search
 
 ## Installation ##
 
+### Files ###
+
+Namer requires certain csv files in order to work. It expects these files to be in the `files` directory.
+The following files are expected:
+
+* corp-name-data.csv
+* corporate_phrase.csv
+* descriptive_phrase.csv
+
+_Note: Please ensure that these files are encoded in either ASCII or UTF-8, and uses LF line endings._
+
 ### Docker ###
 
 1. `docker build . -t namer`
