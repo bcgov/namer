@@ -100,6 +100,18 @@ def validator_descriptive():
     return jsonify(result)
 
 
+@app.route("/api/validator/v1/distinctive", methods=['GET'])
+def validator_distinctive():
+    """
+    Returns a JSON response containing the results of distinctive validation
+    :return: JSON Response of validation results
+    """
+    query = request.args.get('q')
+
+    result = Validator.distinctive(query)
+    return jsonify(result)
+
+
 @app.route("/api/validator/v1/validate", methods=['GET'])
 def validator_validate():
     """
