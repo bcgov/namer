@@ -11,6 +11,17 @@ class Validator:
     severity_error_val = 2
     severity_warn_val = 1
 
+    error_types = {
+        'emptyvalue': dict(code=0, severity=severity_error_val,
+                           message="Empty value"),
+        'oneword': dict(code=1, severity=severity_warn_val,
+                        message="More than 1 word"),
+        'invalidcorp': dict(code=2, severity=severity_error_val,
+                            message="Not a valid corporation type"),
+        'nodescvalue': dict(code=3, severity=severity_error_val,
+                            message="No descriptive value found")
+    }
+
     __corp_phrases = None
     __desc_phrases = None
 
@@ -67,32 +78,29 @@ class Validator:
         :param query: String to validate
         :return: Dictionary containing result of validating corporation type
         """
+        if query is not None:
+            query = query.upper()
+
         result = Validator._create_errors_obj()
         result['value'] = query
 
         # Empty value
         if query is None or query.strip() is '':
-            error = dict(code=0,
-                         message="Empty value",
-                         severity=Validator.severity_error_val)
-            result['errors']['errors'].append(error)
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
 
         else:
             strip_q = query.strip()
 
             # More than 1 word
             if strip_q.find(' ') != -1:
-                error = dict(code=1,
-                             message="More than 1 word",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+                result['errors']['errors'].append(
+                    Validator.error_types['oneword'])
 
             # Doesn't match any corp_types
             if strip_q not in Validator.__corp_phrases:
-                error = dict(code=2,
-                             message="Not a valid corporation type",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+                result['errors']['errors'].append(
+                    Validator.error_types['invalidcorp'])
 
         result['valid'] = len(result['errors']['errors']) == 0
         return result
@@ -105,17 +113,17 @@ class Validator:
         :param query: String to validate
         :return: Dictionary containing result of validating descriptive
         """
+        if query is not None:
+            query = query.upper()
+
         result = Validator._create_errors_obj()
         result['value'] = query
 
         # Empty value
         if query is None or query.strip() is '':
             result['exists'] = False
-
-            error = dict(code=0,
-                         message="Empty value",
-                         severity=Validator.severity_error_val)
-            result['errors']['errors'].append(error)
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
 
         else:
             result['exists'] = True
@@ -123,17 +131,13 @@ class Validator:
 
             # More than 1 word
             if strip_q.find(' ') != -1:
-                error = dict(code=1,
-                             message="More than 1 word",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+                result['errors']['errors'].append(
+                    Validator.error_types['oneword'])
 
             # Doesn't contain descriptive value
             if strip_q not in Validator.__desc_phrases:
-                error = dict(code=2,
-                             message="No descriptive value found",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+                result['errors']['errors'].append(
+                    Validator.error_types['nodescvalue'])
 
         return result
 
@@ -145,17 +149,17 @@ class Validator:
         :param query: String to validate
         :return: Dictionary containing result of validating distinctive
         """
+        if query is not None:
+            query = query.upper()
+
         result = Validator._create_errors_obj()
         result['value'] = query
 
         # Empty value
         if query is None or query.strip() is '':
             result['exists'] = False
-
-            error = dict(code=0,
-                         message="Empty value",
-                         severity=Validator.severity_error_val)
-            result['errors']['errors'].append(error)
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
 
         else:
             result['exists'] = True
@@ -163,10 +167,8 @@ class Validator:
 
             # More than 1 word
             if strip_q.find(' ') != -1:
-                error = dict(code=1,
-                             message="More than 1 word",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+                result['errors']['errors'].append(
+                    Validator.error_types['oneword'])
 
         return result
 
@@ -177,8 +179,12 @@ class Validator:
         :param query: String to validate
         :return: Dictionary containing results of all validation steps
         """
-        result = dict()
-        if query is not None and query.strip() is not '':
+        if query is None or query.strip() is '':
+            result = dict(corporation=Validator.corporate(),
+                          descriptive=Validator.descriptive(),
+                          distinct=Validator.distinctive())
+
+        else:
             query = query.upper()
             clean_q = utils.re_alphanum(query)
             split_q = clean_q.strip().split()
