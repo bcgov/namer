@@ -19,7 +19,7 @@ class Search:
         """
         if Search.__search_trie is None:
             file_path = os.path.join(os.path.dirname(__file__), '..', 'files',
-                                     'data-100k.csv')
+                                     'corp-name-data.csv')
             Search._load_data(file_path)
 
     @staticmethod
@@ -48,7 +48,7 @@ class Search:
             try:
                 for row in reader:
                     # Ignore columns with specified END_EVENT_ID
-                    if row[end_event_field] in (None, ''):
+                    if row[end_event_field] not in (None, ''):
                         continue
 
                     # Build Cache Dictionary
@@ -62,8 +62,8 @@ class Search:
                     # Build Search Trie
                     # Remove non-alphanumeric characters and split words
                     clean_name = utils.re_alphanum(row[name_field])
-                    for word in clean_name.split():
-                        if word not in (None, ''):
+                    if clean_name not in (None, ''):
+                        for word in clean_name.strip().split():
                             # Create all possible suffixes of word
                             suffix_list = \
                                 [(yield(word[i:])) for i in range(len(word))]
@@ -122,7 +122,7 @@ class Search:
         name_list = list()
         for index in index_set:
             values = Search._lookup_name(index)
-            if values is not None:
+            if values not in (None, ''):
                 name_list += values
 
         # Return alphabetically sorted names
@@ -144,8 +144,9 @@ class Search:
         clean_q = utils.re_alphanum(query)
         if clean_q not in (None, ''):
             # Filter results that do not contain all values in query
-            name_list = [name for name in name_list if all(
-                term in utils.re_alphanum(name) for term in clean_q.split())]
+            name_list = [name for name in name_list if
+                         all(term in utils.re_alphanum(name)
+                             for term in clean_q.strip().split())]
 
             # Bring strings with matching prefix to the top
             starts_with_list = \
@@ -170,7 +171,7 @@ class Search:
             query = query.upper()
             clean_q = utils.re_alphanum(query)
             results = set()
-            for term in clean_q.split():
+            for term in clean_q.strip().split():
                 if len(results) == 0:
                     results = Search._trie_search(term)
                 else:

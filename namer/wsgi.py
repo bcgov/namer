@@ -21,8 +21,8 @@ def main():
 
     log.info("Loading server...")
     load_start = timer()
-    Search()  # Loads data into search engine cache
     Validator()  # Loads phrase list into memory
+    Search()  # Loads data into search engine cache
     load_end = timer()
     log.info('Load time: %s', str(load_end - load_start))
 
