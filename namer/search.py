@@ -4,7 +4,7 @@ import os
 import sys
 import utils
 
-from pytrie import SortedStringTrie as Trie
+from pytrie import StringTrie as Trie
 
 log = logging.getLogger(__name__)
 
@@ -186,7 +186,7 @@ class Search:
             for i, name in zip(range(int(limit)), names):
                 hits.append({'id': str(i), 'label': name, 'value': name})
 
-        return {'hits': hits}
+        return dict(hits=hits)
 
     @staticmethod
     def main(argv):
@@ -208,11 +208,12 @@ class Search:
             results = Search.search(argv[1])
             search_end = timer()
 
-            log.info('Results: %s', results)
-            log.info('Data load time: %s', str(load_end - load_start))
-            log.info('Search time: %s', str(search_end - search_start))
+            log.debug('Results: %s', results)
+            log.debug('Data load time: %s', str(load_end - load_start))
+            log.debug('Search time: %s', str(search_end - search_start))
         else:
             log.error('No search term specified')
+
 
 if __name__ == "__main__":
     Search.main(sys.argv)

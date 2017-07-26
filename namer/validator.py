@@ -12,18 +12,20 @@ class Validator:
     severity_warn_val = 1
 
     error_types = {
-        'emptyvalue': dict(code=0, severity=severity_error_val,
+        'emptyvalue': dict(code=1000, severity=severity_error_val,
                            message="Empty value"),
-        'oneword': dict(code=1, severity=severity_warn_val,
+        'oneword': dict(code=1001, severity=severity_warn_val,
                         message="More than 1 word"),
-        'invalidcorp': dict(code=2, severity=severity_error_val,
+        'invalidcorp': dict(code=1002, severity=severity_error_val,
                             message="Not a valid corporation type"),
-        'nodescvalue': dict(code=3, severity=severity_error_val,
-                            message="No descriptive value found")
+        'nodescvalue': dict(code=1003, severity=severity_error_val,
+                            message="No descriptive value found"),
     }
 
     __corp_phrases = None
     __desc_phrases = None
+    __blacklist_phrases = None
+    __greylist_phrases = None
 
     def __new__(cls):
         """
@@ -32,17 +34,24 @@ class Validator:
         """
         if Validator.__corp_phrases is None:
             Validator.__corp_phrases = \
-                Validator._load_data('corporate_phrase.csv')
+                Validator._load_csv('corporate_phrase.csv')
         if Validator.__desc_phrases is None:
             Validator.__desc_phrases = \
-                Validator._load_data('descriptive_phrase.csv')
+                Validator._load_csv('descriptive_phrase.csv')
+
+        if Validator.__blacklist_phrases is None:
+            Validator.__blacklist_phrases = \
+                Validator._load_txt('blacklist_phrase.txt')
+        if Validator.__greylist_phrases is None:
+            Validator.__greylist_phrases = \
+                Validator._load_txt('greylist_phrase.txt')
 
     @staticmethod
-    def _load_data(filename):
+    def _load_csv(filename):
         """
         Loads a CSV file containing a list of phrases to match on
         :param filename: CSV file name
-        :return: List containing phrases
+        :return: Tuple containing phrases
         """
         import csv
 
@@ -50,7 +59,7 @@ class Validator:
         path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
         if not os.path.isfile(path):
             log.warning('%s not found.', filename)
-            return phrases
+            return tuple(phrases)
 
         with open(path, newline='') as data:
             reader = csv.reader(data)
@@ -62,14 +71,67 @@ class Validator:
                 log.error('Unexpected input at line %s', reader.line_num)
 
         log.info('Loaded %s', filename)
-        return phrases
+        return tuple(phrases)
+
+    @staticmethod
+    def _load_txt(filename):
+        """
+        Loads a TXT file containing a list of codes and phrases to match on
+        :param filename: Text file name
+        :return: Tuple containing phrases
+        """
+        phrases = list()
+        path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
+        if not os.path.isfile(path):
+            log.warning('%s not found.', filename)
+            return tuple(phrases)
+
+        with open(path, newline='') as data:
+            for line in data:
+                split_line = line.strip().split()
+                entry = (split_line[0], ' '.join(split_line[1:]))
+                phrases.append(entry)
+
+        log.info('Loaded %s', filename)
+        return tuple(phrases)
 
     @staticmethod
     def _create_errors_obj():
         return dict(
             errors={'SEVERITY_ERROR_VALUE': Validator.severity_error_val,
                     'SEVERITY_WARN_VALUE': Validator.severity_warn_val,
-                    'errors': list()}, value=None)
+                    'errors': list()})
+
+    @staticmethod
+    def blacklist(query=None):
+        """
+        Checks a string for occurrences of blacklist words
+        :param query: String to check against blacklist
+        :return: Dictionary containing results of blacklist occurrences
+        """
+        if query is not None:
+            query = query.upper()
+
+        result = Validator._create_errors_obj()
+        result['blacklisted'] = dict(values=list())
+
+        # Empty value
+        if query is None or query.strip() is '':
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
+
+        else:
+            clean_q = utils.re_alphanum(query)
+
+            # Contains blacklist matches
+            for code, pattern in Validator.__blacklist_phrases:
+                if pattern in clean_q:
+                    result['blacklisted']['values'].append(pattern)
+                    result['errors']['errors'].append(
+                        dict(code=code, severity=Validator.severity_warn_val,
+                             message=f"Matched on '{pattern}'"))
+
+        return result
 
     @staticmethod
     def corporate(query=None):
@@ -173,6 +235,37 @@ class Validator:
         return result
 
     @staticmethod
+    def greylist(query=None):
+        """
+        Checks a string for occurrences of greylist words
+        :param query: String to check against greylist
+        :return: Dictionary containing results of greylist occurrences
+        """
+        if query is not None:
+            query = query.upper()
+
+        result = Validator._create_errors_obj()
+        result['greylisted'] = dict(values=list())
+
+        # Empty value
+        if query is None or query.strip() is '':
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
+
+        else:
+            clean_q = utils.re_alphanum(query)
+
+            # Contains greylist matches
+            for code, pattern in Validator.__greylist_phrases:
+                if pattern in clean_q:
+                    result['greylisted']['values'].append(pattern)
+                    result['errors']['errors'].append(
+                        dict(code=code, severity=Validator.severity_warn_val,
+                             message=f"Matched on '{pattern}'"))
+
+        return result
+
+    @staticmethod
     def validate(query=None):
         """
         Runs all the validation steps and returns a comprehensive dictionary
@@ -233,12 +326,22 @@ class Validator:
             Validator()
             load_end = timer()
             val_start = timer()
-            results = Validator.validate(argv[1])
+            val_results = Validator.validate(argv[1])
             val_end = timer()
+            black_start = timer()
+            black_results = Validator.blacklist(argv[1])
+            black_end = timer()
+            grey_start = timer()
+            grey_results = Validator.greylist(argv[1])
+            grey_end = timer()
 
-            log.info('Results: %s', results)
-            log.info('Phrase load time: %s', str(load_end - load_start))
-            log.info('Validate time: %s', str(val_end - val_start))
+            log.debug('Validator Results: %s', val_results)
+            log.debug('Blacklist Results: %s', black_results)
+            log.debug('Greylist Results: %s', grey_results)
+            log.debug('Phrase load time: %s', str(load_end - load_start))
+            log.debug('Validate time: %s', str(val_end - val_start))
+            log.debug('Blacklist time: %s', str(black_end - black_start))
+            log.debug('Greylist time: %s', str(grey_end - grey_start))
         else:
             log.error('No search term specified')
 
