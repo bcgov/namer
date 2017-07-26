@@ -1,10 +1,14 @@
-from flask import Flask, jsonify, render_template, request
+import logging
+
+from flask import Flask, g, jsonify, render_template, request
 from flask_swaggerui import render_swaggerui, build_static_blueprint
 from search import Search
 from validator import Validator
 
 app = Flask(__name__)
 app.register_blueprint(build_static_blueprint("swaggerui", __name__))
+
+log = logging.getLogger(__name__)
 
 
 def load_swagger_yaml(filename):
@@ -20,6 +24,20 @@ def load_swagger_yaml(filename):
     v1_swag = open(path, 'r')
     docs = yaml.load(v1_swag)
     return jsonify(docs)
+
+
+@app.before_request
+def before_request():
+    from timeit import default_timer as timer
+
+    g.request_start_time = timer()
+    g.request_time = lambda: "%s" % (timer() - g.request_start_time)
+
+
+@app.after_request
+def after_request(response):
+    log.debug('Rendered in %ss', g.request_time())
+    return response
 
 
 @app.route('/')
@@ -155,4 +173,6 @@ def validator_validate():
 
 
 if __name__ == "__main__":
-    app.run()
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s - %(levelname)s - %(message)s')
+    app.run(use_debugger=True)

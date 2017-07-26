@@ -208,9 +208,9 @@ class Search:
             results = Search.search(argv[1])
             search_end = timer()
 
-            log.info('Results: %s', results)
-            log.info('Data load time: %s', str(load_end - load_start))
-            log.info('Search time: %s', str(search_end - search_start))
+            log.debug('Results: %s', results)
+            log.debug('Data load time: %s', str(load_end - load_start))
+            log.debug('Search time: %s', str(search_end - search_start))
         else:
             log.error('No search term specified')
 

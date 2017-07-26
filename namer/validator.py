@@ -24,6 +24,8 @@ class Validator:
 
     __corp_phrases = None
     __desc_phrases = None
+    __blacklist_phrases = None
+    __greylist_phrases = None
 
     def __new__(cls):
         """
@@ -32,17 +34,24 @@ class Validator:
         """
         if Validator.__corp_phrases is None:
             Validator.__corp_phrases = \
-                Validator._load_data('corporate_phrase.csv')
+                Validator._load_csv('corporate_phrase.csv')
         if Validator.__desc_phrases is None:
             Validator.__desc_phrases = \
-                Validator._load_data('descriptive_phrase.csv')
+                Validator._load_csv('descriptive_phrase.csv')
+
+        if Validator.__blacklist_phrases is None:
+            Validator.__blacklist_phrases = \
+                Validator._load_txt('blacklist_phrase.txt')
+        if Validator.__greylist_phrases is None:
+            Validator.__greylist_phrases = \
+                Validator._load_txt('greylist_phrase.txt')
 
     @staticmethod
-    def _load_data(filename):
+    def _load_csv(filename):
         """
         Loads a CSV file containing a list of phrases to match on
         :param filename: CSV file name
-        :return: List containing phrases
+        :return: Tuple containing phrases
         """
         import csv
 
@@ -50,7 +59,7 @@ class Validator:
         path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
         if not os.path.isfile(path):
             log.warning('%s not found.', filename)
-            return phrases
+            return tuple(phrases)
 
         with open(path, newline='') as data:
             reader = csv.reader(data)
@@ -62,7 +71,29 @@ class Validator:
                 log.error('Unexpected input at line %s', reader.line_num)
 
         log.info('Loaded %s', filename)
-        return phrases
+        return tuple(phrases)
+
+    @staticmethod
+    def _load_txt(filename):
+        """
+        Loads a TXT file containing a list of codes and phrases to match on
+        :param filename: Text file name
+        :return: Tuple containing phrases
+        """
+        phrases = list()
+        path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
+        if not os.path.isfile(path):
+            log.warning('%s not found.', filename)
+            return tuple(phrases)
+
+        with open(path, newline='') as data:
+            for line in data:
+                split_line = line.strip().split()
+                entry = (split_line[0], ' '.join(split_line[1:]))
+                phrases.append(entry)
+
+        log.info('Loaded %s', filename)
+        return tuple(phrases)
 
     @staticmethod
     def _create_errors_obj():
@@ -90,8 +121,15 @@ class Validator:
                 Validator.error_types['emptyvalue'])
 
         else:
+            clean_q = utils.re_alphanum(query)
+
             # Contains blacklist matches
-            NotImplemented  # TODO Implement this
+            for code, pattern in Validator.__blacklist_phrases:
+                if pattern in clean_q:
+                    result['blacklisted']['values'].append(pattern)
+                    result['errors']['errors'].append(
+                        dict(code=code, severity=Validator.severity_warn_val,
+                             message=f"Matched on '{pattern}'"))
 
         return result
 
@@ -215,16 +253,15 @@ class Validator:
                 Validator.error_types['emptyvalue'])
 
         else:
+            clean_q = utils.re_alphanum(query)
+
             # Contains greylist matches
-            pattern = 'one'
-            result['errors']['errors'].append(
-                dict(code=0, severity=Validator.severity_warn_val,
-                     message=f"Matched on '{pattern}'"))
-            result['greylisted']['values'].append(pattern)
-            result['errors']['errors'].append(
-                dict(code=0, severity=Validator.severity_warn_val,
-                     message=f"Matched on 'test'"))
-            result['greylisted']['values'].append('test')
+            for code, pattern in Validator.__greylist_phrases:
+                if pattern in clean_q:
+                    result['greylisted']['values'].append(pattern)
+                    result['errors']['errors'].append(
+                        dict(code=code, severity=Validator.severity_warn_val,
+                             message=f"Matched on '{pattern}'"))
 
         return result
 
@@ -298,13 +335,13 @@ class Validator:
             grey_results = Validator.greylist(argv[1])
             grey_end = timer()
 
-            log.info('Validator Results: %s', val_results)
-            log.info('Blacklist Results: %s', black_results)
-            log.info('Greylist Results: %s', grey_results)
-            log.info('Phrase load time: %s', str(load_end - load_start))
-            log.info('Validate time: %s', str(val_end - val_start))
-            log.info('Blacklist time: %s', str(black_end - black_start))
-            log.info('Greylist time: %s', str(grey_end - grey_start))
+            log.debug('Validator Results: %s', val_results)
+            log.debug('Blacklist Results: %s', black_results)
+            log.debug('Greylist Results: %s', grey_results)
+            log.debug('Phrase load time: %s', str(load_end - load_start))
+            log.debug('Validate time: %s', str(val_end - val_start))
+            log.debug('Blacklist time: %s', str(black_end - black_start))
+            log.debug('Greylist time: %s', str(grey_end - grey_start))
         else:
             log.error('No search term specified')
 
