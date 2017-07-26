@@ -27,8 +27,8 @@ paths:
     get:
       tags:
         - blacklist
-      summary: Checks a string for occurances of blacklist
-      description: Checks a string for occurances of blacklisted words
+      summary: Checks a string for occurrences of blacklist
+      description: Checks a string for occurrences of blacklisted words
       operationId: blacklist
       consumes:
         - application/json
@@ -42,7 +42,7 @@ paths:
           type: string
       responses:
         '200':
-          description: JSON response containing the results of blacklist occurances
+          description: JSON response containing the results of blacklist occurrences
           schema:
             $ref: '#/definitions/blacklistResponse'
         '405':
@@ -140,8 +140,8 @@ paths:
     get:
       tags:
         - greylist
-      summary: Checks a string for occurances of greylist
-      description: Checks a string for occurances of greylist words
+      summary: Checks a string for occurrences of greylist
+      description: Checks a string for occurrences of greylist words
       operationId: greylist
       consumes:
         - application/json
@@ -155,7 +155,7 @@ paths:
           type: string
       responses:
         '200':
-          description: JSON response containing the results of greylist occurances
+          description: JSON response containing the results of greylist occurrences
           schema:
             $ref: '#/definitions/greylistResponse'
         '405':

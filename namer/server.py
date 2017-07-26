@@ -82,6 +82,18 @@ def validator_swagger():
     return load_swagger_yaml('validator.v1.swagger.yaml')
 
 
+@app.route('/api/validator/v1/blacklist', methods=['GET'])
+def validator_blacklist():
+    """
+    Returns a JSON response containing the results of blacklist occurrences
+    :return: JSON Response of validation results
+    """
+    query = request.args.get('q')
+
+    result = Validator.blacklist(query)
+    return jsonify(result)
+
+
 @app.route('/api/validator/v1/corporate', methods=['GET'])
 def validator_corporate():
     """
@@ -115,6 +127,18 @@ def validator_distinctive():
     query = request.args.get('q')
 
     result = Validator.distinctive(query)
+    return jsonify(result)
+
+
+@app.route('/api/validator/v1/greylist', methods=['GET'])
+def validator_greylist():
+    """
+    Returns a JSON response containing the results of greylist occurrences
+    :return: JSON Response of validation results
+    """
+    query = request.args.get('q')
+
+    result = Validator.greylist(query)
     return jsonify(result)
 
 

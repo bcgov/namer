@@ -12,14 +12,14 @@ class Validator:
     severity_warn_val = 1
 
     error_types = {
-        'emptyvalue': dict(code=0, severity=severity_error_val,
+        'emptyvalue': dict(code=1000, severity=severity_error_val,
                            message="Empty value"),
-        'oneword': dict(code=1, severity=severity_warn_val,
+        'oneword': dict(code=1001, severity=severity_warn_val,
                         message="More than 1 word"),
-        'invalidcorp': dict(code=2, severity=severity_error_val,
+        'invalidcorp': dict(code=1002, severity=severity_error_val,
                             message="Not a valid corporation type"),
-        'nodescvalue': dict(code=3, severity=severity_error_val,
-                            message="No descriptive value found")
+        'nodescvalue': dict(code=1003, severity=severity_error_val,
+                            message="No descriptive value found"),
     }
 
     __corp_phrases = None
@@ -69,7 +69,31 @@ class Validator:
         return dict(
             errors={'SEVERITY_ERROR_VALUE': Validator.severity_error_val,
                     'SEVERITY_WARN_VALUE': Validator.severity_warn_val,
-                    'errors': list()}, value=None)
+                    'errors': list()})
+
+    @staticmethod
+    def blacklist(query=None):
+        """
+        Checks a string for occurrences of blacklist words
+        :param query: String to check against blacklist
+        :return: Dictionary containing results of blacklist occurrences
+        """
+        if query is not None:
+            query = query.upper()
+
+        result = Validator._create_errors_obj()
+        result['blacklisted'] = dict(values=list())
+
+        # Empty value
+        if query is None or query.strip() is '':
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
+
+        else:
+            # Contains blacklist matches
+            NotImplemented  # TODO Implement this
+
+        return result
 
     @staticmethod
     def corporate(query=None):
@@ -173,6 +197,38 @@ class Validator:
         return result
 
     @staticmethod
+    def greylist(query=None):
+        """
+        Checks a string for occurrences of greylist words
+        :param query: String to check against greylist
+        :return: Dictionary containing results of greylist occurrences
+        """
+        if query is not None:
+            query = query.upper()
+
+        result = Validator._create_errors_obj()
+        result['greylisted'] = dict(values=list())
+
+        # Empty value
+        if query is None or query.strip() is '':
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
+
+        else:
+            # Contains greylist matches
+            pattern = 'one'
+            result['errors']['errors'].append(
+                dict(code=0, severity=Validator.severity_warn_val,
+                     message=f"Matched on '{pattern}'"))
+            result['greylisted']['values'].append(pattern)
+            result['errors']['errors'].append(
+                dict(code=0, severity=Validator.severity_warn_val,
+                     message=f"Matched on 'test'"))
+            result['greylisted']['values'].append('test')
+
+        return result
+
+    @staticmethod
     def validate(query=None):
         """
         Runs all the validation steps and returns a comprehensive dictionary
@@ -233,12 +289,22 @@ class Validator:
             Validator()
             load_end = timer()
             val_start = timer()
-            results = Validator.validate(argv[1])
+            val_results = Validator.validate(argv[1])
             val_end = timer()
+            black_start = timer()
+            black_results = Validator.blacklist(argv[1])
+            black_end = timer()
+            grey_start = timer()
+            grey_results = Validator.greylist(argv[1])
+            grey_end = timer()
 
-            log.info('Results: %s', results)
+            log.info('Validator Results: %s', val_results)
+            log.info('Blacklist Results: %s', black_results)
+            log.info('Greylist Results: %s', grey_results)
             log.info('Phrase load time: %s', str(load_end - load_start))
             log.info('Validate time: %s', str(val_end - val_start))
+            log.info('Blacklist time: %s', str(black_end - black_start))
+            log.info('Greylist time: %s', str(grey_end - grey_start))
         else:
             log.error('No search term specified')
 
