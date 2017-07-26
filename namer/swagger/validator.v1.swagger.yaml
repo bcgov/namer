@@ -1,273 +1,267 @@
----
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "Corporate Name Validator"
-  version: "1.0.0"
-  title: "Corporate Name Validator"
-  contact:
-    email: ""
+  description: Corporate Name Validator
+  version: 1.0.0
+  title: Corporate Name Validator
   license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: ""
-basePath: "/api/validator/v1"
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+basePath: /api/validator/v1
 tags:
-- name: "validate"
-  description: "Calls regarding overall validation"
-- name: "blacklist"
-  description: "Calls regarding the black list"
-- name: "greylist"
-  description: "Calls regarding the grey list"
-- name: "corporate"
-  description: "Calls regarding the validation of corporate string portion"
-- name: "descriptive"
-  description: "Calls regarding the validation of descriptive string portion"
-- name: "distinctive"
-  description: "Calls regarding the validation of distinctive string portion"
+  - name: validate
+    description: Calls regarding overall validation
+  - name: blacklist
+    description: Calls regarding the black list
+  - name: greylist
+    description: Calls regarding the grey list
+  - name: corporate
+    description: Calls regarding the validation of corporate string portion
+  - name: descriptive
+    description: Calls regarding the validation of descriptive string portion
+  - name: distinctive
+    description: Calls regarding the validation of distinctive string portion
 schemes:
-- "http"
+  - http
 paths:
-  /validate:
-    get:
-      tags:
-      - "validate"
-      summary: "Runs all the validation steps and returns a comprehensive JSON Object"
-      description: "Runs all the validation steps and returns a comprehensive JSON Object"
-      operationId: "validate"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "query"
-        name: "q"
-        description: "The name to validate against"
-        required: true
-        schema:
-          $ref: "#/definitions/corporateName"
-      responses:
-        200:
-          schema:
-            $ref: "#/definitions/validateResponse"
-        405:
-          schema:
-            $ref: "#/definitions/errorResponse"
-
   /blacklist:
     get:
       tags:
-      - "blacklist"
-      summary: "Checks a string for occurances of blacklist"
-      description: "Checks a string for occurances of blacklisted words"
-      operationId: "blacklist"
+        - blacklist
+      summary: Checks a string for occurances of blacklist
+      description: Checks a string for occurances of blacklisted words
+      operationId: blacklist
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "query"
-        name: "q"
-        description: "The string to check against the black list"
-        required: true
-        schema:
-          $ref: "#/definitions/corporateName"
+        - in: query
+          name: q
+          description: The string to check against the black list
+          required: true
+          type: string
       responses:
-        200:
+        '200':
+          description: JSON response containing the results of blacklist occurances
           schema:
-            $ref: "#/definitions/blacklistResponse"
-        405:
+            $ref: '#/definitions/blacklistResponse'
+        '405':
+          description: Unexpected error
           schema:
-            $ref: "#/definitions/errorResponse"
-
-  /greylist:
-    get:
-      tags:
-      - "greylist"
-      summary: "Checks a string for occurances of greylist"
-      description: "Checks a string for occurances of greylist words"
-      operationId: "greylist"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "query"
-        name: "q"
-        description: "The string to check against the grey list"
-        required: true
-        schema:
-          $ref: "#/definitions/corporateName"
-      responses:
-        200:
-          schema:
-            $ref: "#/definitions/greylistResponse"
-        405:
-          schema:
-            $ref: "#/definitions/errorResponse"
-
+            $ref: '#/definitions/errorResponse'
   /corporate:
     get:
       tags:
-      - "corporate"
-      summary: "Checks a string to see if it is a valid corporation type"
-      description: "Checks a string to see if it is a valid corporation type"
-      operationId: "corporate"
+        - corporate
+      summary: Checks a string to see if it is a valid corporation type
+      description: Checks a string to see if it is a valid corporation type
+      operationId: corporate
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "query"
-        name: "q"
-        description: "The string to check against the corporation type list"
-        required: true
-        schema:
-          $ref: "#/definitions/corporateString"
+        - in: query
+          name: q
+          description: The string to check against the corporation type list
+          required: true
+          type: string
       responses:
-        200:
+        '200':
+          description: JSON response containing the results of corporate validation
           schema:
-            $ref: "#/definitions/corporateResponse"
-        405:
+            $ref: '#/definitions/validResponse'
+        '405':
+          description: Unexpected error
           schema:
-            $ref: "#/definitions/errorResponse"
-
+            $ref: '#/definitions/errorResponse'
   /descriptive:
     get:
       tags:
-      - "descriptive"
-      summary: "Checks a string to see if it contains a valid descriptive for corporate names"
-      description: "Checks a string to see if it contains a valid descriptive for corporate names"
-      operationId: "descriptive"
+        - descriptive
+      summary: >-
+        Checks a string to see if it contains a valid descriptive for corporate
+        names
+      description: >-
+        Checks a string to see if it contains a valid descriptive for corporate
+        names
+      operationId: descriptive
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "query"
-        name: "q"
-        description: "The string to check for valid descriptive portion"
-        required: true
-        schema:
-          $ref: "#/definitions/corporateString"
+        - in: query
+          name: q
+          description: The string to check for valid descriptive portion
+          required: true
+          type: string
       responses:
-        200:
+        '200':
+          description: JSON response containing the results of descriptive validation
           schema:
-            $ref: "#/definitions/distDescResponse"
-        405:
+            $ref: '#/definitions/existsResponse'
+        '405':
+          description: Unexpected error
           schema:
-            $ref: "#/definitions/errorResponse"
-
+            $ref: '#/definitions/errorResponse'
   /distinctive:
     get:
       tags:
-      - "distinctive"
-      summary: "Checks a string to see if it contains a valid distinctive for corporate names"
-      description: "Checks a string to see if it contains a valid distinctive for corporate names, note that this probably means not all the string was consumed with descriptives"
-      operationId: "distinctive"
+        - distinctive
+      summary: >-
+        Checks a string to see if it contains a valid distinctive for corporate
+        names
+      description: >-
+        Checks a string to see if it contains a valid distinctive for corporate
+        names, note that this probably means not all the string was consumed
+        with descriptives
+      operationId: distinctive
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "query"
-        name: "q"
-        description: "The string to check for valid distinctive portion"
-        required: true
-        schema:
-          $ref: "#/definitions/corporateString"
+        - in: query
+          name: q
+          description: The string to check for valid distinctive portion
+          required: true
+          type: string
       responses:
-        200:
+        '200':
+          description: JSON response containing the results of distinctive validation
           schema:
-            $ref: "#/definitions/distDescResponse"
-        405:
+            $ref: '#/definitions/existsResponse'
+        '405':
+          description: Unexpected error
           schema:
-            $ref: "#/definitions/errorResponse"
-
+            $ref: '#/definitions/errorResponse'
+  /greylist:
+    get:
+      tags:
+        - greylist
+      summary: Checks a string for occurances of greylist
+      description: Checks a string for occurances of greylist words
+      operationId: greylist
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: q
+          description: The string to check against the grey list
+          required: true
+          type: string
+      responses:
+        '200':
+          description: JSON response containing the results of greylist occurances
+          schema:
+            $ref: '#/definitions/greylistResponse'
+        '405':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/errorResponse'
+  /validate:
+    get:
+      tags:
+        - validate
+      summary: Runs all the validation steps and returns a comprehensive JSON Object
+      description: Runs all the validation steps and returns a comprehensive JSON Object
+      operationId: validate
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: q
+          description: The name to validate against
+          required: true
+          type: string
+      responses:
+        '200':
+          description: JSON response containing the results of overall validation
+          schema:
+            $ref: '#/definitions/validateResponse'
+        '405':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/errorResponse'
 definitions:
-  errors:
-    type: "object"
+  badlisted:
+    properties:
+      values:
+        type: array
+        items:
+          type: string
+  blacklistResponse:
     properties:
       errors:
-        type: "array"
-        items:
-          $ref: "#/definitions/errorArray"
-      SEVERITY_WARN_VALUE:
-        type: "number"
-        default: 1
-      SEVERITY_ERROR_VALUE:
-        type: "number"
-        default: 2
-  corporateName:
-    type: "object"
-    properties:
-      name:
-        type: "string"
+        $ref: '#/definitions/errors'
+      blacklisted:
+        $ref: '#/definitions/badlisted'
   errorArray:
     properties:
       code:
-        type: "integer"
-        format: "int32"
+        type: integer
+        format: int32
       severity:
-        type: "integer"
-        format: "int32"
-        description: "0 - No error.\n1 - Warn\n2 - Error"
+        type: integer
+        format: int32
+        description: |-
+          0 - No Error
+          1 - Warn
+          2 - Error
       message:
-        type: "string"
-  distDescResponse:
+        type: string
+  errors:
+    type: object
     properties:
-      exists:
-        type: "boolean"
-      value:
-        type: "string"
       errors:
-          $ref: "#/definitions/errors"
-  corporateResponse:
-    properties:
-      value:
-        type: "string"
-      valid:
-        type: "boolean"
-      errors:
-        $ref: "#/definitions/errors"
-  validateResponse:
-    properties:
-      distinct:
-        $ref: "#/definitions/distDescResponse"
-      descriptive:
-        $ref: "#/definitions/distDescResponse"
-      corporation:
-        $ref: "#/definitions/corporateResponse"
+        type: array
+        items:
+          $ref: '#/definitions/errorArray'
+      SEVERITY_WARN_VALUE:
+        type: number
+        default: 1
+      SEVERITY_ERROR_VALUE:
+        type: number
+        default: 2
   errorResponse:
     properties:
       error:
-        type: "string"
+        type: string
       errorCode:
-        type: "integer"
-        format: "int32"
-  blacklisted:
+        type: integer
+        format: int32
+  existsResponse:
     properties:
-      values:
-        type: "array"
-        items:
-          type: "string"
-  blacklistResponse:
-    properties:
-      blacklisted:
-        $ref: "#/definitions/blacklisted"
+      exists:
+        type: boolean
+      value:
+        type: string
       errors:
-        type: "array"
-        items:
-          $ref: "#/definitions/errorArray"
+        $ref: '#/definitions/errors'
   greylistResponse:
     properties:
       greylisted:
-        $ref: "#/definitions/blacklisted"
+        $ref: '#/definitions/badlisted'
       errors:
-        type: "array"
-        items:
-          $ref: "#/definitions/errorArray"
-  corporateString:
-    type: "object"
+        $ref: '#/definitions/errors'
+  validateResponse:
     properties:
-      name:
-        type: "string"
+      distinct:
+        $ref: '#/definitions/existsResponse'
+      descriptive:
+        $ref: '#/definitions/existsResponse'
+      corporation:
+        $ref: '#/definitions/validResponse'
+  validResponse:
+    properties:
+      valid:
+        type: boolean
+      value:
+        type: string
+      errors:
+        $ref: '#/definitions/errors'

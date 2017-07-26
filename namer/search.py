@@ -186,7 +186,7 @@ class Search:
             for i, name in zip(range(int(limit)), names):
                 hits.append({'id': str(i), 'label': name, 'value': name})
 
-        return {'hits': hits}
+        return dict(hits=hits)
 
     @staticmethod
     def main(argv):
@@ -213,6 +213,7 @@ class Search:
             log.info('Search time: %s', str(search_end - search_start))
         else:
             log.error('No search term specified')
+
 
 if __name__ == "__main__":
     Search.main(sys.argv)
