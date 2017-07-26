@@ -4,7 +4,7 @@ import os
 import sys
 import utils
 
-from pytrie import SortedStringTrie as Trie
+from pytrie import StringTrie as Trie
 
 log = logging.getLogger(__name__)
 
