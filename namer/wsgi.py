@@ -2,7 +2,7 @@
 import logging
 import sys
 
-from gevent.wsgi import WSGIServer
+from gevent.pywsgi import WSGIServer
 from search import Search
 from server import app as application
 from timeit import default_timer as timer

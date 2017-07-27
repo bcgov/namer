@@ -129,7 +129,7 @@ class Validator:
                     result['blacklisted']['values'].append(pattern)
                     result['errors']['errors'].append(
                         dict(code=code, severity=Validator.severity_warn_val,
-                             message=f"Matched on '{pattern}'"))
+                             message=f"Blacklist match on '{pattern}'"))
 
         return result
 
@@ -201,6 +201,16 @@ class Validator:
                 result['errors']['errors'].append(
                     Validator.error_types['nodescvalue'])
 
+            # Check Blacklist
+            black_result = Validator.blacklist(strip_q)
+            result['errors']['errors'].extend(
+                black_result['errors']['errors'])
+
+            # Check Greylist
+            grey_result = Validator.greylist(strip_q)
+            result['errors']['errors'].extend(
+                grey_result['errors']['errors'])
+
         return result
 
     @staticmethod
@@ -232,6 +242,16 @@ class Validator:
                 result['errors']['errors'].append(
                     Validator.error_types['oneword'])
 
+            # Check Blacklist
+            black_result = Validator.blacklist(strip_q)
+            result['errors']['errors'].extend(
+                black_result['errors']['errors'])
+
+            # Check Greylist
+            grey_result = Validator.greylist(strip_q)
+            result['errors']['errors'].extend(
+                grey_result['errors']['errors'])
+
         return result
 
     @staticmethod
@@ -261,7 +281,7 @@ class Validator:
                     result['greylisted']['values'].append(pattern)
                     result['errors']['errors'].append(
                         dict(code=code, severity=Validator.severity_warn_val,
-                             message=f"Matched on '{pattern}'"))
+                             message=f"Greylist match on '{pattern}'"))
 
         return result
 
