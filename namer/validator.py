@@ -154,11 +154,6 @@ class Validator:
         else:
             strip_q = query.strip()
 
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                result['errors']['errors'].append(
-                    Validator.error_types['oneword'])
-
             # Doesn't match any corp_types
             if strip_q not in Validator.__corp_phrases:
                 result['errors']['errors'].append(
@@ -190,11 +185,6 @@ class Validator:
         else:
             result['exists'] = True
             strip_q = query.strip()
-
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                result['errors']['errors'].append(
-                    Validator.error_types['oneword'])
 
             # Doesn't contain descriptive value
             if strip_q not in Validator.__desc_phrases:
@@ -236,11 +226,6 @@ class Validator:
         else:
             result['exists'] = True
             strip_q = query.strip()
-
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                result['errors']['errors'].append(
-                    Validator.error_types['oneword'])
 
             # Check Blacklist
             black_result = Validator.blacklist(strip_q)
@@ -300,29 +285,35 @@ class Validator:
 
         else:
             query = query.upper()
-            clean_q = utils.re_alphanum(query)
-            split_q = clean_q.strip().split()
+            corp_q = query.strip()
 
-            # TODO Add smarter line parsing logic
-            if len(split_q) != 3:
-                log.warning('Expected 3 words - may have unexpected results')
+            # Parse corporate phrases
+            corp_index = None
+            corp_pattern = None
+            for pattern in Validator.__corp_phrases:
+                if corp_q.endswith(pattern):
+                    corp_index = corp_q.rindex(pattern)
+                    corp_pattern = corp_q[corp_index:]
+                    break
 
-            try:
-                corp_result = Validator.corporate(split_q[-1])
-                split_q = split_q[:-1]
-            except IndexError:
-                corp_result = Validator.corporate()
+            corp_result = Validator.corporate(corp_pattern)
+            desc_q = corp_q[:corp_index].strip()
 
-            try:
-                desc_result = Validator.descriptive(split_q[-1])
-                split_q = split_q[:-1]
-            except IndexError:
-                desc_result = Validator.descriptive()
+            # Parse descriptive phrases
+            # TODO Add multiple passes on descriptive search
+            desc_index = None
+            desc_pattern = None
+            for pattern in Validator.__desc_phrases:
+                if desc_q.endswith(pattern):
+                    desc_index = desc_q.rindex(pattern)
+                    desc_pattern = desc_q[desc_index:]
+                    break
 
-            try:
-                dist_result = Validator.distinctive(' '.join(split_q))
-            except IndexError:
-                dist_result = Validator.distinctive()
+            desc_result = Validator.descriptive(desc_pattern)
+            dist_q = desc_q[:desc_index].strip()
+
+            # Parse distinctive phrases
+            dist_result = Validator.distinctive(dist_q)
 
             result = dict(corporation=corp_result,
                           descriptive=desc_result,
