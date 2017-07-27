@@ -20,9 +20,10 @@ setup(
     include_package_data=True,
     install_requires=[
         'flask',
+        'flask-swaggerui',
+        'gevent',
         'pytrie',
         'pyyaml',
-        'flask-swaggerui',
     ],
     setup_requires=[
     ],

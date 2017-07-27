@@ -1,6 +1,7 @@
 # Base Requirements
 Flask==0.12.2              #BSD License
 PyTrie==0.3                #BSD
+gevent==1.2.2              #MIT
 pyyaml==3.12               #MIT
 flask-swaggerui==0.0.1     #MIT
 
