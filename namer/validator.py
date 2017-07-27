@@ -80,20 +80,19 @@ class Validator:
         :param filename: Text file name
         :return: Tuple containing phrases
         """
-        phrases = list()
+        phrases = dict()
         path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
         if not os.path.isfile(path):
             log.warning('%s not found.', filename)
-            return tuple(phrases)
+            return phrases
 
         with open(path, newline='') as data:
             for line in data:
                 split_line = line.strip().split()
-                entry = (split_line[0], ' '.join(split_line[1:]))
-                phrases.append(entry)
+                phrases[' '.join(split_line[1:])] = split_line[0]
 
         log.info('Loaded %s', filename)
-        return tuple(phrases)
+        return phrases
 
     @staticmethod
     def _create_errors_obj():
@@ -124,11 +123,12 @@ class Validator:
             clean_q = utils.re_alphanum(query)
 
             # Contains blacklist matches
-            for code, pattern in Validator.__blacklist_phrases:
+            for pattern in Validator.__blacklist_phrases:
                 if pattern in clean_q:
                     result['blacklisted']['values'].append(pattern)
                     result['errors']['errors'].append(
-                        dict(code=code, severity=Validator.severity_warn_val,
+                        dict(code=Validator.__blacklist_phrases[pattern],
+                             severity=Validator.severity_warn_val,
                              message=f"Blacklist match on '{pattern}'"))
 
         return result
@@ -276,11 +276,12 @@ class Validator:
             clean_q = utils.re_alphanum(query)
 
             # Contains greylist matches
-            for code, pattern in Validator.__greylist_phrases:
+            for pattern in Validator.__greylist_phrases:
                 if pattern in clean_q:
                     result['greylisted']['values'].append(pattern)
                     result['errors']['errors'].append(
-                        dict(code=code, severity=Validator.severity_warn_val,
+                        dict(code=Validator.__greylist_phrases[pattern],
+                             severity=Validator.severity_warn_val,
                              message=f"Greylist match on '{pattern}'"))
 
         return result
