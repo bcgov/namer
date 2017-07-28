@@ -13,13 +13,15 @@ class Validator:
 
     error_types = {
         'emptyvalue': dict(code=1000, severity=severity_error_val,
-                           message="Empty value"),
+                           message="No value found"),
         'oneword': dict(code=1001, severity=severity_warn_val,
                         message="More than 1 word"),
         'invalidcorp': dict(code=1002, severity=severity_error_val,
-                            message="Not a valid corporation type"),
+                            message="No valid corporation type"),
         'nodescvalue': dict(code=1003, severity=severity_error_val,
                             message="No descriptive value found"),
+        'somedescvalue': dict(code=1004, severity=severity_warn_val,
+                              message="Not all values are descriptive")
     }
 
     __corp_phrases = None
@@ -128,7 +130,7 @@ class Validator:
                     result['blacklisted']['values'].append(pattern)
                     result['errors']['errors'].append(
                         dict(code=Validator.__blacklist_phrases[pattern],
-                             severity=Validator.severity_warn_val,
+                             severity=Validator.severity_error_val,
                              message=f"Blacklist match on '{pattern}'"))
 
         return result
@@ -175,21 +177,34 @@ class Validator:
 
         result = Validator._create_errors_obj()
         result['value'] = query
+        result['exists'] = False
 
         # Empty value
         if query is None or query.strip() is '':
-            result['exists'] = False
             result['errors']['errors'].append(
                 Validator.error_types['emptyvalue'])
 
         else:
-            result['exists'] = True
             strip_q = query.strip()
 
-            # Doesn't contain descriptive value
-            if strip_q not in Validator.__desc_phrases:
+            # Descriptive value detection
+            desc_index = None
+            desc_done = False
+            while not desc_done:
+                for pattern in Validator.__desc_phrases:
+                    if strip_q[:desc_index].strip().endswith(pattern):
+                        result['exists'] = True
+                        desc_index = strip_q[:desc_index].rindex(pattern)
+                        break
+                else:
+                    desc_done = True
+
+            if not result['exists']:
                 result['errors']['errors'].append(
                     Validator.error_types['nodescvalue'])
+            elif not strip_q[:desc_index].strip() in (None, ''):
+                result['errors']['errors'].append(
+                    Validator.error_types['somedescvalue'])
 
             # Check Blacklist
             black_result = Validator.blacklist(strip_q)
@@ -293,21 +308,24 @@ class Validator:
             for pattern in Validator.__corp_phrases:
                 if corp_q.endswith(pattern):
                     corp_index = corp_q.rindex(pattern)
-                    corp_pattern = corp_q[corp_index:]
+                    corp_pattern = corp_q[corp_index:].strip()
                     break
 
             corp_result = Validator.corporate(corp_pattern)
             desc_q = corp_q[:corp_index].strip()
 
             # Parse descriptive phrases
-            # TODO Add multiple passes on descriptive search
             desc_index = None
             desc_pattern = None
-            for pattern in Validator.__desc_phrases:
-                if desc_q.endswith(pattern):
-                    desc_index = desc_q.rindex(pattern)
-                    desc_pattern = desc_q[desc_index:]
-                    break
+            desc_done = False
+            while not desc_done:
+                for pattern in Validator.__desc_phrases:
+                    if desc_q[:desc_index].strip().endswith(pattern):
+                        desc_index = desc_q[:desc_index].rindex(pattern)
+                        desc_pattern = desc_q[desc_index:].strip()
+                        break
+                else:
+                    desc_done = True
 
             desc_result = Validator.descriptive(desc_pattern)
             dist_q = desc_q[:desc_index].strip()
