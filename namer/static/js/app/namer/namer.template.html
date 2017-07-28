@@ -17,20 +17,20 @@
 
 <div *ngIf="showValidation">
     <h2>Validation Information</h2>
-    <div class="nameAnalysis">
-        <div class="ui-widget inline">
+    <div class="nameAnalysis row">
+        <div class="ui-widget col-sm-4">
             <label for="distinct">Distinct:</label>
             <input [class]="distinctErrorClass" type="text" id="distinct" readonly="readonly" [value]="distinct" />
             <div [class]="distinctErrorClass" [innerHTML]="distinctErrors"></div>
         </div>
 
-        <div class="ui-widget inline">
+        <div class="ui-widget col-sm-4">
             <label for="descriptive">Descriptive:</label>
             <input [class]="descriptiveErrorClass" type="text" id="descriptive" readonly="readonly" [value]="descriptive" />
             <div [class]="descriptiveErrorClass" [innerHTML]="descriptiveErrors"></div>
         </div>
 
-        <div class="ui-widget inline">
+        <div class="ui-widget col-sm-4">
             <label for="corporate">Corporate:</label>
             <input [class]="corporateErrorClass" type="text" id="corporate" readonly="readonly" [value]="corporate" />
             <div [class]="corporateErrorClass" [innerHTML]="corporateErrors"></div>

@@ -99,26 +99,38 @@ export class NamerComponent {
             (data) => {
                 this.distinct = data.distinct.value;
                 this.distinctErrors = "";
+                let distinctSeverity = 0
                 for (var i=0; i<data.distinct.errors.errors.length; i++){
+                    if (data.distinct.errors.errors[i].severity > distinctSeverity) {
+                        distinctSeverity = data.distinct.errors.errors[i].severity;
+                    }
                     this.distinctErrors += "<div>" + data.distinct.errors.errors[i].message + "</div>";
-                    this.distinctErrorClass = (data.distinct.errors.errors[i].severity == data.distinct.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.distinct.errors.errors[i].severity == data.distinct.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
+                    this.distinctErrorClass = (distinctSeverity == data.distinct.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                            ( (distinctSeverity == data.distinct.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 this.descriptive = data.descriptive.value;
                 this.descriptiveErrors = "";
+                let descriptiveSeverity = 0;
                 for (var i=0; i<data.descriptive.errors.errors.length; i++){
+                    if (data.descriptive.errors.errors[i].severity > descriptiveSeverity) {
+                        descriptiveSeverity = data.descriptive.errors.errors[i].severity;
+                    }
                     this.descriptiveErrors += "<div>" + data.descriptive.errors.errors[i].message + "</div>";
-                    this.descriptiveErrorClass = (data.descriptive.errors.errors[i].severity == data.descriptive.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.descriptive.errors.errors[i].severity == data.descriptive.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
+                    this.descriptiveErrorClass = (descriptiveSeverity == data.descriptive.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                               ( (descriptiveSeverity == data.descriptive.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 this.corporate = data.corporation.value;
                 this.corporateErrors = "";
+                let corporateSeverity = 0;
                 for (var i=0; i<data.corporation.errors.errors.length; i++){
+                    if (data.corporation.errors.errors[i].severity > corporateSeverity) {
+                        corporateSeverity = data.corporation.errors.errors[i].severity;
+                    }
                     this.corporateErrors += "<div>" + data.corporation.errors.errors[i].message + "</div>";
-                    this.corporateErrorClass = (data.corporation.errors.errors[i].severity == data.corporation.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
-                                             ( (data.corporation.errors.errors[i].severity == data.corporation.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
+                    this.corporateErrorClass = (corporateSeverity == data.corporation.errors.SEVERITY_ERROR_VALUE) ? this.ERROR_CLASS :
+                                             ( (corporateSeverity == data.corporation.errors.SEVERITY_WARN_VALUE) ? this.WARN_CLASS : this.PASS_CLASS );
                 }
 
                 done++;
