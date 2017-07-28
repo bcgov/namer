@@ -13,13 +13,15 @@ class Validator:
 
     error_types = {
         'emptyvalue': dict(code=1000, severity=severity_error_val,
-                           message="Empty value"),
+                           message="No value found"),
         'oneword': dict(code=1001, severity=severity_warn_val,
                         message="More than 1 word"),
         'invalidcorp': dict(code=1002, severity=severity_error_val,
-                            message="Not a valid corporation type"),
+                            message="No valid corporation type"),
         'nodescvalue': dict(code=1003, severity=severity_error_val,
                             message="No descriptive value found"),
+        'somedescvalue': dict(code=1004, severity=severity_warn_val,
+                              message="Not all values are descriptive")
     }
 
     __corp_phrases = None
@@ -80,20 +82,19 @@ class Validator:
         :param filename: Text file name
         :return: Tuple containing phrases
         """
-        phrases = list()
+        phrases = dict()
         path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
         if not os.path.isfile(path):
             log.warning('%s not found.', filename)
-            return tuple(phrases)
+            return phrases
 
         with open(path, newline='') as data:
             for line in data:
                 split_line = line.strip().split()
-                entry = (split_line[0], ' '.join(split_line[1:]))
-                phrases.append(entry)
+                phrases[' '.join(split_line[1:])] = split_line[0]
 
         log.info('Loaded %s', filename)
-        return tuple(phrases)
+        return phrases
 
     @staticmethod
     def _create_errors_obj():
@@ -124,12 +125,13 @@ class Validator:
             clean_q = utils.re_alphanum(query)
 
             # Contains blacklist matches
-            for code, pattern in Validator.__blacklist_phrases:
+            for pattern in Validator.__blacklist_phrases:
                 if pattern in clean_q:
                     result['blacklisted']['values'].append(pattern)
                     result['errors']['errors'].append(
-                        dict(code=code, severity=Validator.severity_warn_val,
-                             message=f"Matched on '{pattern}'"))
+                        dict(code=Validator.__blacklist_phrases[pattern],
+                             severity=Validator.severity_error_val,
+                             message=f"Blacklist match on '{pattern}'"))
 
         return result
 
@@ -154,11 +156,6 @@ class Validator:
         else:
             strip_q = query.strip()
 
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                result['errors']['errors'].append(
-                    Validator.error_types['oneword'])
-
             # Doesn't match any corp_types
             if strip_q not in Validator.__corp_phrases:
                 result['errors']['errors'].append(
@@ -180,26 +177,44 @@ class Validator:
 
         result = Validator._create_errors_obj()
         result['value'] = query
+        result['exists'] = False
 
         # Empty value
         if query is None or query.strip() is '':
-            result['exists'] = False
             result['errors']['errors'].append(
                 Validator.error_types['emptyvalue'])
 
         else:
-            result['exists'] = True
             strip_q = query.strip()
 
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                result['errors']['errors'].append(
-                    Validator.error_types['oneword'])
+            # Descriptive value detection
+            desc_index = None
+            desc_done = False
+            while not desc_done:
+                for pattern in Validator.__desc_phrases:
+                    if strip_q[:desc_index].strip().endswith(pattern):
+                        result['exists'] = True
+                        desc_index = strip_q[:desc_index].rindex(pattern)
+                        break
+                else:
+                    desc_done = True
 
-            # Doesn't contain descriptive value
-            if strip_q not in Validator.__desc_phrases:
+            if not result['exists']:
                 result['errors']['errors'].append(
                     Validator.error_types['nodescvalue'])
+            elif not strip_q[:desc_index].strip() in (None, ''):
+                result['errors']['errors'].append(
+                    Validator.error_types['somedescvalue'])
+
+            # Check Blacklist
+            black_result = Validator.blacklist(strip_q)
+            result['errors']['errors'].extend(
+                black_result['errors']['errors'])
+
+            # Check Greylist
+            grey_result = Validator.greylist(strip_q)
+            result['errors']['errors'].extend(
+                grey_result['errors']['errors'])
 
         return result
 
@@ -227,10 +242,15 @@ class Validator:
             result['exists'] = True
             strip_q = query.strip()
 
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                result['errors']['errors'].append(
-                    Validator.error_types['oneword'])
+            # Check Blacklist
+            black_result = Validator.blacklist(strip_q)
+            result['errors']['errors'].extend(
+                black_result['errors']['errors'])
+
+            # Check Greylist
+            grey_result = Validator.greylist(strip_q)
+            result['errors']['errors'].extend(
+                grey_result['errors']['errors'])
 
         return result
 
@@ -256,12 +276,13 @@ class Validator:
             clean_q = utils.re_alphanum(query)
 
             # Contains greylist matches
-            for code, pattern in Validator.__greylist_phrases:
+            for pattern in Validator.__greylist_phrases:
                 if pattern in clean_q:
                     result['greylisted']['values'].append(pattern)
                     result['errors']['errors'].append(
-                        dict(code=code, severity=Validator.severity_warn_val,
-                             message=f"Matched on '{pattern}'"))
+                        dict(code=Validator.__greylist_phrases[pattern],
+                             severity=Validator.severity_warn_val,
+                             message=f"Greylist match on '{pattern}'"))
 
         return result
 
@@ -279,29 +300,38 @@ class Validator:
 
         else:
             query = query.upper()
-            clean_q = utils.re_alphanum(query)
-            split_q = clean_q.strip().split()
+            corp_q = query.strip()
 
-            # TODO Add smarter line parsing logic
-            if len(split_q) != 3:
-                log.warning('Expected 3 words - may have unexpected results')
+            # Parse corporate phrases
+            corp_index = None
+            corp_pattern = None
+            for pattern in Validator.__corp_phrases:
+                if corp_q.endswith(pattern):
+                    corp_index = corp_q.rindex(pattern)
+                    corp_pattern = corp_q[corp_index:].strip()
+                    break
 
-            try:
-                corp_result = Validator.corporate(split_q[-1])
-                split_q = split_q[:-1]
-            except IndexError:
-                corp_result = Validator.corporate()
+            corp_result = Validator.corporate(corp_pattern)
+            desc_q = corp_q[:corp_index].strip()
 
-            try:
-                desc_result = Validator.descriptive(split_q[-1])
-                split_q = split_q[:-1]
-            except IndexError:
-                desc_result = Validator.descriptive()
+            # Parse descriptive phrases
+            desc_index = None
+            desc_pattern = None
+            desc_done = False
+            while not desc_done:
+                for pattern in Validator.__desc_phrases:
+                    if desc_q[:desc_index].strip().endswith(pattern):
+                        desc_index = desc_q[:desc_index].rindex(pattern)
+                        desc_pattern = desc_q[desc_index:].strip()
+                        break
+                else:
+                    desc_done = True
 
-            try:
-                dist_result = Validator.distinctive(' '.join(split_q))
-            except IndexError:
-                dist_result = Validator.distinctive()
+            desc_result = Validator.descriptive(desc_pattern)
+            dist_q = desc_q[:desc_index].strip()
+
+            # Parse distinctive phrases
+            dist_result = Validator.distinctive(dist_q)
 
             result = dict(corporation=corp_result,
                           descriptive=desc_result,

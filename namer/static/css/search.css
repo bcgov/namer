@@ -35,6 +35,12 @@
     background-color: #f1f1f2;
     padding: 15px;
     margin-bottom: 15px;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.ui-widget > input {
+    width: 70%;
 }
 
 .ui-widget > label {
@@ -42,7 +48,7 @@
     margin: 0;
 }
 
-.ui-widget  md-input-container {
+.ui-widget md-input-container {
     padding-left: 20px;
     padding-right: 20px;
     width: 75%;
