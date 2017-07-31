@@ -209,6 +209,7 @@ class Search:
             search_end = timer()
 
             log.debug('Results: %s', results)
+            log.debug('Result Count: %s', str(len(results['hits'])))
             log.debug('Data load time: %s', str(load_end - load_start))
             log.debug('Search time: %s', str(search_end - search_start))
         else:
