@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r /usr/src/app/requirements.txt
 
 # Build NPM Dependencies
 COPY namer/static/js/app/package.json /usr/src/app/namer/static/js/app/
+COPY namer/static/js/app/package-lock.json /usr/src/app/namer/static/js/app/
 WORKDIR /usr/src/app/namer/static/js/app/
 RUN npm install
 RUN chmod -R 777 node_modules
