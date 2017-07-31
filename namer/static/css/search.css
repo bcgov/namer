@@ -95,3 +95,9 @@ div.ui-widget.inline {
     display: inline-block;
     vertical-align: top;
 }
+
+/* Override unipear's padding negation for bootstrap grid objects */
+[class*="col-"] {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}

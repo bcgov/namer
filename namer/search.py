@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 
 class Search:
     __search_trie = None
-    __cached_name = None
 
     def __new__(cls):
         """
@@ -33,7 +32,6 @@ class Search:
         """
         import csv
 
-        index_field = 'CORP_NUM'
         end_event_field = 'END_EVENT_ID'
         name_field = 'CORP_NME'
 
@@ -52,14 +50,6 @@ class Search:
                     if row[end_event_field] not in (None, ''):
                         continue
 
-                    # Build Cache Dictionary
-                    if row[index_field] not in Search.__cached_name:
-                        Search.__cached_name[row[index_field]] = \
-                            [row[name_field]]
-                    else:
-                        Search.__cached_name[row[index_field]].append(
-                            row[name_field])
-
                     # Build Search Trie
                     # Remove non-alphanumeric characters and split words
                     clean_name = utils.re_alphanum(row[name_field])
@@ -72,7 +62,7 @@ class Search:
                                 if suffix not in Search.__search_trie:
                                     Search.__search_trie[suffix] = set()
                                 Search.__search_trie[suffix].add(
-                                    row[index_field])
+                                    row[name_field])
 
             except UnicodeDecodeError:
                 log.error('Unexpected input at line %s', reader.line_num)
@@ -98,36 +88,6 @@ class Search:
             pass
 
         return results
-
-    @staticmethod
-    def _lookup_name(index):
-        """
-        Looks up indexed cached names if they exist
-        :param index: Index value
-        :return: String name value
-        """
-        if index in Search.__cached_name:
-            return Search.__cached_name[index]
-        else:
-            return None
-
-    @staticmethod
-    def _gather_names(index_set):
-        """
-        Returns a sorted aggregate list of all names from index_set with
-        entries beginning with prefix showing up first
-        :param index_set: Set of Index values
-        :return: List of sorted names
-        """
-        # Gather cached names into a single list
-        name_list = list()
-        for index in index_set:
-            values = Search._lookup_name(index)
-            if values not in (None, ''):
-                name_list += values
-
-        # Return alphabetically sorted names
-        return sorted(name_list, key=str.lower)
 
     @staticmethod
     def _filter_names(name_list, query):
@@ -178,7 +138,7 @@ class Search:
                 else:
                     results.intersection_update(Search._trie_search(term))
 
-            name_list = Search._gather_names(results)
+            name_list = sorted(list(results), key=str.lower)
             names = Search._filter_names(name_list, query)
 
             if limit in (None, ''):
