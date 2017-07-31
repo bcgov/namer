@@ -143,7 +143,7 @@ export class NamerComponent {
             }
         );
 
-        this.namerService.getHits(this.searchBox.value).subscribe(
+        this.namerService.getHits(this.searchBox.value, 50, true).subscribe(
             (data) => {
                 let results = "";
                 for (var i=0; i<data.hits.length; i++){

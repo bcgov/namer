@@ -119,12 +119,13 @@ class Search:
         return name_list
 
     @staticmethod
-    def search(query=None, limit=None):
+    def search(query=None, limit=None, synonym=False):
         """
         Returns a dictionary containing the search results of term in hits
         Hits is a list of dictionaries containing an id, label and value
         :param query: String search term
         :param limit: Limites number of results returned
+        :param synonym: Toggles synonym search support
         :return: Dictionary containing list of hits
         """
         hits = list()

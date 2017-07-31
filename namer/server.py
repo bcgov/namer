@@ -75,10 +75,13 @@ def search_search():
     """
     query = request.args.get('q')
     limit = request.args.get('limit')
-    if limit is None:
+    if limit in (None, ''):
         limit = 20
+    synonym = request.args.get('synonym')
+    if synonym in (None, ''):
+        synonym = False
 
-    result = Search.search(query, limit)
+    result = Search.search(query, limit, synonym)
     return jsonify(result)
 
 
