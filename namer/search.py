@@ -119,6 +119,36 @@ class Search:
         return name_list
 
     @staticmethod
+    def _get_synonyms(terms):
+        """
+        Returns a list of synonyms for all terms in term_list if they exist
+        :param terms: List of words to check for synonyms
+        :return: List of synonyms - empty list if none are found
+        """
+        return [Search._synonym(term) for term in terms] \
+            if isinstance(terms, list) else Search._synonym(terms)
+
+    @staticmethod
+    def _synonym(term):
+        """
+        Returns a list of synonyms for term if they exist
+        :param term: Single word to check for synonyms
+        :return: List of synonyms - empty list if none are found
+        """
+        li = list()
+
+        try:
+            if len(term.split()) == 1:
+                data = utils.get_soup_object(
+                    "http://www.thesaurus.com/browse/{}".format(term))
+                terms = data.select(
+                    ".synonym-description ~ .relevancy-block")[0].findAll("li")
+                for t in terms:
+                    li.append(t.select("span.text")[0].getText().upper())
+        finally:
+            return li
+
+    @staticmethod
     def search(query=None, limit=None, synonym=False):
         """
         Returns a dictionary containing the search results of term in hits
@@ -171,6 +201,7 @@ class Search:
 
             log.debug('Results: %s', results)
             log.debug('Result Count: %s', str(len(results['hits'])))
+            log.debug('Synonyms: %s', Search._get_synonyms(argv[1:]))
             log.debug('Data load time: %s', str(load_end - load_start))
             log.debug('Search time: %s', str(search_end - search_start))
         else:

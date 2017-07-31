@@ -19,11 +19,13 @@ setup(
     package_dir={'namer': 'namer'},
     include_package_data=True,
     install_requires=[
+        'bs4',
         'flask',
         'flask-swaggerui',
         'gevent',
         'pytrie',
         'pyyaml',
+        'requests',
     ],
     setup_requires=[
     ],

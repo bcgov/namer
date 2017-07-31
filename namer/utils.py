@@ -1,3 +1,10 @@
+def get_soup_object(url, parser="html.parser"):
+    from requests import get
+    from bs4 import BeautifulSoup
+
+    return BeautifulSoup(get(url).text, parser)
+
+
 def re_alphanum(string):
     """
     Removes non-alphanumeric characters
