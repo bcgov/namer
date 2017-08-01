@@ -97,7 +97,7 @@ div.ui-widget.inline {
 }
 
 /* Override unipear's padding negation for bootstrap grid objects */
-[class*="col-"] {
+template > [class*="col-"] {
     padding-left: 15px !important;
     padding-right: 15px !important;
 }

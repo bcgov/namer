@@ -77,9 +77,11 @@ def search_search():
     limit = request.args.get('limit')
     if limit in (None, ''):
         limit = 20
-    synonym = request.args.get('synonym')
-    if synonym in (None, ''):
-        synonym = False
+    syn_str = request.args.get('synonym')
+    synonym = False
+    if syn_str not in (None, '') and syn_str.lower() == 'true' \
+            or syn_str == '1':
+        synonym = True
 
     result = Search.search(query, limit, synonym)
     return jsonify(result)
