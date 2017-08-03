@@ -5,8 +5,8 @@ Rapid Name Search
 
 ## Dependencies ##
 
-- npm
-- python 3.6
+- python (>=3.6)
+- node (>=8.2.1)
 
 ## Installation ##
 
@@ -18,6 +18,8 @@ The following files are expected:
 * corp-name-data.csv
 * corporate_phrase.csv
 * descriptive_phrase.csv
+* blacklist_phrase.txt
+* greylist_phrase.txt
 
 _Note: Please ensure that these files are encoded in either ASCII or UTF-8, and uses LF line endings._
 
@@ -46,4 +48,14 @@ For Namer to work, both the front-end and back-end must be started.
 
 ## Tests ##
 
-To Be Determined
+The tests depend on:
+
+- pytest>=3.2.0
+- pytest-cov>=2.5.1
+- coverage>=4.4.1
+
+To test the library simply use:
+
+    pytest
+
+_Note:_ Tests are To Be Determined

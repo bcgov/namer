@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 
 class Search:
     __search_trie = None
-    __cached_name = None
 
     def __new__(cls):
         """
@@ -33,12 +32,10 @@ class Search:
         """
         import csv
 
-        index_field = 'CORP_NUM'
         end_event_field = 'END_EVENT_ID'
         name_field = 'CORP_NME'
 
         Search.__search_trie = Trie()
-        Search.__cached_name = dict()
         if not os.path.isfile(file_path):
             log.warning('File not found. Empty search trie instantiated')
             return
@@ -52,14 +49,6 @@ class Search:
                     if row[end_event_field] not in (None, ''):
                         continue
 
-                    # Build Cache Dictionary
-                    if row[index_field] not in Search.__cached_name:
-                        Search.__cached_name[row[index_field]] = \
-                            [row[name_field]]
-                    else:
-                        Search.__cached_name[row[index_field]].append(
-                            row[name_field])
-
                     # Build Search Trie
                     # Remove non-alphanumeric characters and split words
                     clean_name = utils.re_alphanum(row[name_field])
@@ -72,7 +61,7 @@ class Search:
                                 if suffix not in Search.__search_trie:
                                     Search.__search_trie[suffix] = set()
                                 Search.__search_trie[suffix].add(
-                                    row[index_field])
+                                    row[name_field])
 
             except UnicodeDecodeError:
                 log.error('Unexpected input at line %s', reader.line_num)
@@ -100,86 +89,117 @@ class Search:
         return results
 
     @staticmethod
-    def _lookup_name(index):
+    def _filter_names(name_list, query=None):
         """
-        Looks up indexed cached names if they exist
-        :param index: Index value
-        :return: String name value
-        """
-        if index in Search.__cached_name:
-            return Search.__cached_name[index]
-        else:
-            return None
-
-    @staticmethod
-    def _gather_names(index_set):
-        """
-        Returns a sorted aggregate list of all names from index_set with
-        entries beginning with prefix showing up first
-        :param index_set: Set of Index values
-        :return: List of sorted names
-        """
-        # Gather cached names into a single list
-        name_list = list()
-        for index in index_set:
-            values = Search._lookup_name(index)
-            if values not in (None, ''):
-                name_list += values
-
-        # Return alphabetically sorted names
-        return sorted(name_list, key=str.lower)
-
-    @staticmethod
-    def _filter_names(name_list, query):
-        """
-        Filters name_list to only contain names with all words in query_list
-        Attempts to reorder entries starting with query_list to the top
+        Filters name_list to only contain names with all words in query
         :param name_list: List of names
         :param query: Raw query String
         :return:
         """
-        # If nothing to filter and sort with
-        if query in (None, ''):
-            return name_list
-
-        clean_q = utils.re_alphanum(query)
-        if clean_q not in (None, ''):
+        if query not in (None, ''):
             # Filter results that do not contain all values in query
-            name_list = [name for name in name_list if
-                         all(term in utils.re_alphanum(name)
-                             for term in clean_q.strip().split())]
-
-            # Bring strings with matching prefix to the top
-            starts_with_list = \
-                [name for name in name_list if name.startswith(clean_q)]
-            remaining_list = \
-                [name for name in name_list if not name.startswith(clean_q)]
-            name_list = starts_with_list + remaining_list
+            clean_q = utils.re_alphanum(query)
+            if clean_q not in (None, ''):
+                name_list = [name for name in name_list if
+                             all(term in utils.re_alphanum(name)
+                                 for term in clean_q.strip().split())]
 
         return name_list
 
     @staticmethod
-    def search(query=None, limit=None):
+    def _sort_names(name_list, query=None):
+        """
+        Sorts and attempts to reorder entries starting with query to the top
+        :param name_list: List of names
+        :param query: Raw query String
+        :return:
+        """
+        # Basic alphanumeric sort
+        name_list = sorted(name_list, key=str.lower)
+
+        # Bring strings with matching prefix to the top
+        if query not in (None, ''):
+            clean_q = utils.re_alphanum(query)
+            if clean_q not in (None, ''):
+                starts_with_list = \
+                    [name for name in name_list if name.startswith(clean_q)]
+                remaining_list = \
+                    [name for name in name_list if not name.startswith(clean_q)]
+                name_list = starts_with_list + remaining_list
+
+        return name_list
+
+    @staticmethod
+    def _synonym(term):
+        """
+        Returns a list of synonyms for term if they exist
+        :param term: Single word to check for synonyms
+        :return: List of synonyms - empty list if none are found
+        """
+        li = list()
+        try:
+            if len(term.split()) == 1:
+                data = utils.get_soup_object(
+                    "http://www.thesaurus.com/browse/{}".format(term))
+                terms = data.select(
+                    ".synonym-description ~ .relevancy-block")[0].findAll("li")
+                for t in terms:
+                    li.append(t.select("span.text")[0].getText().upper())
+
+        finally:
+            return li
+
+    @staticmethod
+    def _get_synonyms(terms):
+        """
+        Returns a list of synonyms for all terms in term_list if they exist
+        :param terms: List of words to check for synonyms
+        :return: List of synonyms - empty list if none are found
+        """
+        if isinstance(terms, list):
+            li = list()
+            for term in terms:
+                li.extend(Search._synonym(term))
+        else:
+            li = Search._synonym(terms)
+        return li
+
+    @staticmethod
+    def search(query=None, limit=None, synonym=False):
         """
         Returns a dictionary containing the search results of term in hits
         Hits is a list of dictionaries containing an id, label and value
         :param query: String search term
         :param limit: Limites number of results returned
+        :param synonym: Toggles synonym search support
         :return: Dictionary containing list of hits
         """
         hits = list()
         if query not in (None, ''):
             query = query.upper()
             clean_q = utils.re_alphanum(query)
-            results = set()
-            for term in clean_q.strip().split():
-                if len(results) == 0:
-                    results = Search._trie_search(term)
-                else:
-                    results.intersection_update(Search._trie_search(term))
+            base_results = set()
+            syn_results = set()
 
-            name_list = Search._gather_names(results)
-            names = Search._filter_names(name_list, query)
+            # Gather direct results
+            for term in clean_q.strip().split():
+                if len(base_results) == 0:
+                    base_results = Search._trie_search(term)
+                else:
+                    base_results.intersection_update(Search._trie_search(term))
+
+            names = Search._filter_names(list(base_results), query)
+
+            # Gather synonym results
+            if synonym:
+                for similar in Search._get_synonyms(clean_q.strip().split()):
+                    if len(syn_results) == 0:
+                        syn_results = Search._trie_search(similar)
+                    else:
+                        syn_results.update(Search._trie_search(similar))
+                names.extend(list(syn_results))
+
+            names = Search._sort_names(names, query)
 
             if limit in (None, ''):
                 limit = sys.maxsize
@@ -205,11 +225,15 @@ class Search:
             Search()
             load_end = timer()
             search_start = timer()
-            results = Search.search(argv[1])
+            results = Search.search(argv[1], synonym=argv[2]
+                                    if len(argv) > 2 else False)
             search_end = timer()
 
             log.debug('Results: %s', results)
             log.debug('Result Count: %s', str(len(results['hits'])))
+            if len(argv) > 2 and argv[2]:
+                log.debug('Synonyms: %s', Search._get_synonyms(
+                    argv[1].strip().split()))
             log.debug('Data load time: %s', str(load_end - load_start))
             log.debug('Search time: %s', str(search_end - search_start))
         else:

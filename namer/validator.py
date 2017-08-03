@@ -320,12 +320,13 @@ class Validator:
             desc_done = False
             while not desc_done:
                 for pattern in Validator.__desc_phrases:
-                    # Add trailing space to assist with proper end pattern
-                    if '{} '.format(desc_q)[:desc_index].endswith(
-                            ' {} '.format(pattern)):
+                    # Add preceding space to assist with proper end pattern
+                    if ' {}'.format(desc_q[:desc_index].strip()).endswith(
+                            ' {}'.format(pattern)):
                         desc_index = desc_q[:desc_index].rindex(pattern)
                         desc_pattern = desc_q[desc_index:].strip()
                         break
+
                 else:
                     desc_done = True
 
