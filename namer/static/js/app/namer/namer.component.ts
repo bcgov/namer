@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef} from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { NamerService, HitResult } from './namer.service';
 import { ValidatorService, ValidationResult } from './validator.service';
@@ -9,7 +9,7 @@ import { ValidatorService, ValidationResult } from './validator.service';
     host: {
         '(document:keydown)': 'keymonitor($event)'
     },
-    providers: [NamerService, ValidatorService]
+    providers: [NamerService, ValidatorService],
 })
 
 export class NamerComponent {
@@ -35,7 +35,7 @@ export class NamerComponent {
     fullSearchResults: string;
     validateEnabled: boolean;
 
-    constructor(private namerService : NamerService, private validatorService: ValidatorService, private changeDetector: ChangeDetectorRef) {
+    constructor(private namerService : NamerService, private validatorService: ValidatorService) {
         this.searchBox = new FormControl();
         this.showValidation = false;
         this.validateEnabled = false;
@@ -49,12 +49,15 @@ export class NamerComponent {
         if ((event.keyCode == 13) && (this.validateEnabled) && (!this.validating) ){
             this.check();
         }
-        console.log("Key press - Triggering change");
-        this.changeDetector.detectChanges();
+    }
+
+    getSearchBox(){
+        this.searchBox = new FormControl(this.searchBox);
+        return this.searchBox;
     }
 
     getHits(val: string) {
-        if (val.length < 2 ){
+        if (val.length < 3 ){
             this.options = [];
             this.validateEnabled = false;
             return;
@@ -66,7 +69,6 @@ export class NamerComponent {
         this.namerService.getHits(val).subscribe(
             (data) => {
                 this.options = data.hits ? data.hits : [];
-                this.changeDetector.detectChanges();
             }
         );
     }
@@ -127,7 +129,6 @@ export class NamerComponent {
                     let splitted = val.replace(/\s+/g,' ').trim().split(' ');
                     this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
                 }
-                this.changeDetector.detectChanges();
             }
         );
 
@@ -145,7 +146,6 @@ export class NamerComponent {
                     this.validateEnabled = ( (splitted.length > 2) && (splitted[2].length > 0) && (this.validating == false));
                 }
                 this.fullSearchResults = results;
-                this.changeDetector.detectChanges();
             }
         );
     }

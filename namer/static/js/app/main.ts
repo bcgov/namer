@@ -1,12 +1,14 @@
+//import 'zone.js';
+
+import 'zone.js/dist/zone';
 import 'reflect-metadata';
-import 'zone.js';
 
 import { enableProdMode } from '@angular/core';
 
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { platformBrowser } from '@angular/platform-browser';
 
 import { NamerModuleNgFactory } from './aot/namer/namer.module.ngfactory';
 
 enableProdMode();
-platformBrowserDynamic().bootstrapModuleFactory(NamerModuleNgFactory);
+platformBrowser().bootstrapModuleFactory(NamerModuleNgFactory);
 
