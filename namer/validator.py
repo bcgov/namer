@@ -1,6 +1,8 @@
+#!/usr/bin/python
 import logging
 import os
 import sys
+import utils
 
 log = logging.getLogger(__name__)
 
@@ -9,8 +11,23 @@ class Validator:
     severity_error_val = 2
     severity_warn_val = 1
 
+    error_types = {
+        'emptyvalue': dict(code=1000, severity=severity_error_val,
+                           message="No value found"),
+        'oneword': dict(code=1001, severity=severity_warn_val,
+                        message="More than 1 word"),
+        'invalidcorp': dict(code=1002, severity=severity_error_val,
+                            message="No valid corporation type"),
+        'nodescvalue': dict(code=1003, severity=severity_error_val,
+                            message="No descriptive value found"),
+        'somedescvalue': dict(code=1004, severity=severity_warn_val,
+                              message="Not all values are descriptive")
+    }
+
     __corp_phrases = None
     __desc_phrases = None
+    __blacklist_phrases = None
+    __greylist_phrases = None
 
     def __new__(cls):
         """
@@ -19,17 +36,24 @@ class Validator:
         """
         if Validator.__corp_phrases is None:
             Validator.__corp_phrases = \
-                Validator._load_data('corporate_phrase.csv')
+                Validator._load_csv('corporate_phrase.csv')
         if Validator.__desc_phrases is None:
             Validator.__desc_phrases = \
-                Validator._load_data('descriptive_phrase.csv')
+                Validator._load_csv('descriptive_phrase.csv')
+
+        if Validator.__blacklist_phrases is None:
+            Validator.__blacklist_phrases = \
+                Validator._load_txt('blacklist_phrase.txt')
+        if Validator.__greylist_phrases is None:
+            Validator.__greylist_phrases = \
+                Validator._load_txt('greylist_phrase.txt')
 
     @staticmethod
-    def _load_data(filename):
+    def _load_csv(filename):
         """
         Loads a CSV file containing a list of phrases to match on
         :param filename: CSV file name
-        :return: List containing phrases
+        :return: Tuple containing phrases
         """
         import csv
 
@@ -37,7 +61,7 @@ class Validator:
         path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
         if not os.path.isfile(path):
             log.warning('%s not found.', filename)
-            return phrases
+            return tuple(phrases)
 
         with open(path, newline='') as data:
             reader = csv.reader(data)
@@ -49,6 +73,27 @@ class Validator:
                 log.error('Unexpected input at line %s', reader.line_num)
 
         log.info('Loaded %s', filename)
+        return tuple(phrases)
+
+    @staticmethod
+    def _load_txt(filename):
+        """
+        Loads a TXT file containing a list of codes and phrases to match on
+        :param filename: Text file name
+        :return: Tuple containing phrases
+        """
+        phrases = dict()
+        path = os.path.join(os.path.dirname(__file__), '..', 'files', filename)
+        if not os.path.isfile(path):
+            log.warning('%s not found.', filename)
+            return phrases
+
+        with open(path, newline='') as data:
+            for line in data:
+                split_line = line.strip().split()
+                phrases[' '.join(split_line[1:])] = split_line[0]
+
+        log.info('Loaded %s', filename)
         return phrases
 
     @staticmethod
@@ -56,7 +101,39 @@ class Validator:
         return dict(
             errors={'SEVERITY_ERROR_VALUE': Validator.severity_error_val,
                     'SEVERITY_WARN_VALUE': Validator.severity_warn_val,
-                    'errors': list()}, value=None)
+                    'errors': list()})
+
+    @staticmethod
+    def blacklist(query=None):
+        """
+        Checks a string for occurrences of blacklist words
+        :param query: String to check against blacklist
+        :return: Dictionary containing results of blacklist occurrences
+        """
+        if query is not None:
+            query = query.upper()
+
+        result = Validator._create_errors_obj()
+        result['blacklisted'] = dict(values=list())
+
+        # Empty value
+        if query is None or query.strip() is '':
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
+
+        else:
+            clean_q = utils.re_alphanum(query)
+
+            # Contains blacklist matches
+            for pattern in Validator.__blacklist_phrases:
+                if pattern in clean_q:
+                    result['blacklisted']['values'].append(pattern)
+                    result['errors']['errors'].append(
+                        dict(code=Validator.__blacklist_phrases[pattern],
+                             severity=Validator.severity_error_val,
+                             message=f"Blacklist match on '{pattern}'"))
+
+        return result
 
     @staticmethod
     def corporate(query=None):
@@ -65,32 +142,24 @@ class Validator:
         :param query: String to validate
         :return: Dictionary containing result of validating corporation type
         """
+        if query is not None:
+            query = query.upper()
+
         result = Validator._create_errors_obj()
         result['value'] = query
 
         # Empty value
         if query is None or query.strip() is '':
-            error = dict(code=0,
-                         message="Empty value",
-                         severity=Validator.severity_error_val)
-            result['errors']['errors'].append(error)
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
 
         else:
             strip_q = query.strip()
 
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                error = dict(code=1,
-                             message="More than 1 word",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
-
             # Doesn't match any corp_types
             if strip_q not in Validator.__corp_phrases:
-                error = dict(code=2,
-                             message="Not a valid corporation type",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+                result['errors']['errors'].append(
+                    Validator.error_types['invalidcorp'])
 
         result['valid'] = len(result['errors']['errors']) == 0
         return result
@@ -103,35 +172,117 @@ class Validator:
         :param query: String to validate
         :return: Dictionary containing result of validating descriptive
         """
+        if query is not None:
+            query = query.upper()
+
+        result = Validator._create_errors_obj()
+        result['value'] = query
+        result['exists'] = False
+
+        # Empty value
+        if query is None or query.strip() is '':
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
+
+        else:
+            strip_q = query.strip()
+
+            # Descriptive value detection
+            desc_index = None
+            desc_done = False
+            while not desc_done:
+                for pattern in Validator.__desc_phrases:
+                    if strip_q[:desc_index].strip().endswith(pattern):
+                        result['exists'] = True
+                        desc_index = strip_q[:desc_index].rindex(pattern)
+                        break
+                else:
+                    desc_done = True
+
+            if not result['exists']:
+                result['errors']['errors'].append(
+                    Validator.error_types['nodescvalue'])
+            elif not strip_q[:desc_index].strip() in (None, ''):
+                result['errors']['errors'].append(
+                    Validator.error_types['somedescvalue'])
+
+            # Check Blacklist
+            black_result = Validator.blacklist(strip_q)
+            result['errors']['errors'].extend(
+                black_result['errors']['errors'])
+
+            # Check Greylist
+            grey_result = Validator.greylist(strip_q)
+            result['errors']['errors'].extend(
+                grey_result['errors']['errors'])
+
+        return result
+
+    @staticmethod
+    def distinctive(query=None):
+        """
+        Checks a string to see if it contains a valid distinctive for corporate
+        names
+        :param query: String to validate
+        :return: Dictionary containing result of validating distinctive
+        """
+        if query is not None:
+            query = query.upper()
+
         result = Validator._create_errors_obj()
         result['value'] = query
 
         # Empty value
         if query is None or query.strip() is '':
             result['exists'] = False
-
-            error = dict(code=0,
-                         message="Empty value",
-                         severity=Validator.severity_error_val)
-            result['errors']['errors'].append(error)
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
 
         else:
             result['exists'] = True
             strip_q = query.strip()
 
-            # More than 1 word
-            if strip_q.find(' ') != -1:
-                error = dict(code=1,
-                             message="More than 1 word",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+            # Check Blacklist
+            black_result = Validator.blacklist(strip_q)
+            result['errors']['errors'].extend(
+                black_result['errors']['errors'])
 
-            # Doesn't contain descriptive value
-            if strip_q not in Validator.__desc_phrases:
-                error = dict(code=2,
-                             message="No descriptive value found",
-                             severity=Validator.severity_error_val)
-                result['errors']['errors'].append(error)
+            # Check Greylist
+            grey_result = Validator.greylist(strip_q)
+            result['errors']['errors'].extend(
+                grey_result['errors']['errors'])
+
+        return result
+
+    @staticmethod
+    def greylist(query=None):
+        """
+        Checks a string for occurrences of greylist words
+        :param query: String to check against greylist
+        :return: Dictionary containing results of greylist occurrences
+        """
+        if query is not None:
+            query = query.upper()
+
+        result = Validator._create_errors_obj()
+        result['greylisted'] = dict(values=list())
+
+        # Empty value
+        if query is None or query.strip() is '':
+            result['errors']['errors'].append(
+                Validator.error_types['emptyvalue'])
+
+        else:
+            clean_q = utils.re_alphanum(query)
+
+            # Contains greylist matches
+            for pattern in Validator.__greylist_phrases:
+                if pattern in clean_q:
+                    result['greylisted']['values'].append(pattern)
+                    result['errors']['errors'].append(
+                        dict(code=Validator.__greylist_phrases[pattern],
+                             severity=Validator.severity_warn_val,
+                             message=f"Greylist match on '{pattern}'"))
 
         return result
 
@@ -139,34 +290,51 @@ class Validator:
     def validate(query=None):
         """
         Runs all the validation steps and returns a comprehensive dictionary
+        :param query: String to validate
         :return: Dictionary containing results of all validation steps
         """
-        result = dict()
-        if query is not None and query.strip() is not '':
-            split_q = query.strip().split()
+        if query is None or query.strip() is '':
+            result = dict(corporation=Validator.corporate(),
+                          descriptive=Validator.descriptive(),
+                          distinct=Validator.distinctive())
 
-            # TODO Add smarter line parsing logic
-            if len(split_q) != 3:
-                log.warning('Expected 3 words - may have unexpected results')
+        else:
+            query = query.upper()
+            corp_q = query.strip()
 
-            try:
-                corp_result = Validator.corporate(split_q[-1])
-            except IndexError:
-                corp_result = Validator.corporate()
+            # Parse corporate phrases
+            corp_index = None
+            corp_pattern = None
+            for pattern in Validator.__corp_phrases:
+                if corp_q.endswith(pattern):
+                    corp_index = corp_q.rindex(pattern)
+                    corp_pattern = corp_q[corp_index:].strip()
+                    break
 
-            try:
-                desc_result = Validator.descriptive(split_q[1])
-            except IndexError:
-                desc_result = Validator.descriptive()
+            corp_result = Validator.corporate(corp_pattern)
+            desc_q = corp_q[:corp_index].strip()
 
-            # TODO Distinct Stub
-            dist_result = Validator._create_errors_obj()
-            dist_result['value'] = split_q[0]
-            dist_result['exists'] = True
-            dist_result['errors']['errors'].append(
-                dict(code=0, message=None, severity=1))
-            dist_result['errors']['errors'][0]['message'] = \
-                "Distinctive Warn"
+            # Parse descriptive phrases
+            desc_index = None
+            desc_pattern = None
+            desc_done = False
+            while not desc_done:
+                for pattern in Validator.__desc_phrases:
+                    # Add preceding space to assist with proper end pattern
+                    if ' {}'.format(desc_q[:desc_index].strip()).endswith(
+                            ' {}'.format(pattern)):
+                        desc_index = desc_q[:desc_index].rindex(pattern)
+                        desc_pattern = desc_q[desc_index:].strip()
+                        break
+
+                else:
+                    desc_done = True
+
+            desc_result = Validator.descriptive(desc_pattern)
+            dist_q = desc_q[:desc_index].strip()
+
+            # Parse distinctive phrases
+            dist_result = Validator.distinctive(dist_q)
 
             result = dict(corporation=corp_result,
                           descriptive=desc_result,
@@ -191,12 +359,22 @@ class Validator:
             Validator()
             load_end = timer()
             val_start = timer()
-            results = Validator.validate(argv[1])
+            val_results = Validator.validate(argv[1])
             val_end = timer()
+            black_start = timer()
+            black_results = Validator.blacklist(argv[1])
+            black_end = timer()
+            grey_start = timer()
+            grey_results = Validator.greylist(argv[1])
+            grey_end = timer()
 
-            log.info('Results: %s', results)
-            log.info('Phrase load time: %s', str(load_end - load_start))
-            log.info('Validate time: %s', str(val_end - val_start))
+            log.debug('Validator Results: %s', val_results)
+            log.debug('Blacklist Results: %s', black_results)
+            log.debug('Greylist Results: %s', grey_results)
+            log.debug('Phrase load time: %s', str(load_end - load_start))
+            log.debug('Validate time: %s', str(val_end - val_start))
+            log.debug('Blacklist time: %s', str(black_end - black_start))
+            log.debug('Greylist time: %s', str(grey_end - grey_start))
         else:
             log.error('No search term specified')
 

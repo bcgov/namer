@@ -1,79 +1,75 @@
----
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "Corporate Name Search"
-  version: "1.0.0"
-  title: "Corporate Name Search"
-  contact:
-    email: ""
+  description: Corporate Name Search
+  version: 1.0.0
+  title: Corporate Name Search
   license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: ""
-basePath: "/api/search/v1"
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+basePath: /api/search/v1
 tags:
-- name: "search"
-  description: "Calls regarding name search"
+  - name: search
+    description: Calls regarding name search
 schemes:
-- "http"
+  - http
 paths:
   /search:
     get:
       tags:
-      - "search"
-      summary: "Runs a search on the string against the existing data"
-      description: "Runs a search on the string against the existing data"
-      operationId: "search"
+        - search
+      summary: Runs a search on the string against the existing data
+      description: Runs a search on the string against the existing data
+      operationId: search
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "query"
-        name: "q"
-        description: "The value to search for"
-        required: true
-        schema:
-          $ref: "#/definitions/searchTerm"
-      - in: "query"
-        name: "limit"
-        default: 20
-        description: "The limit of the search"
-        required: false
-        schema:
-          $ref: "#/definitions/searchLimit"
+        - in: query
+          name: q
+          description: The value to search for
+          required: true
+          type: string
+        - in: query
+          name: limit
+          default: 20
+          description: The limit of the search
+          required: false
+          type: integer
+          format: int32
+        - in: query
+          name: synonym
+          default: false
+          description: Search with synnonym support
+          required: false
+          type: boolean
       responses:
-        200:
+        '200':
+          description: JSON array of search hit results
           schema:
-            $ref: "#/definitions/searchSuccess"
-        405:
+            $ref: '#/definitions/searchSuccess'
+        '405':
+          description: Unexpected error
           schema:
-            $ref: "#/definitions/errors"
-
+            $ref: '#/definitions/errors'
 definitions:
-  searchTerm:
-    type: "string"
-  searchLimit:
-    type: "integer"
-    format: "int32"
   errors:
     properties:
       error:
-        type: "string"
+        type: string
       errorCode:
-        type: "integer"
-        format: "int32"
+        type: integer
+        format: int32
   searchSuccess:
     properties:
       hits:
-        type: "array"
+        type: array
         items:
-          type: "object"
+          type: object
           properties:
             id:
-              type: "string"
+              type: string
             label:
-              type: "string"
+              type: string
             value:
-              type: "string"
-
+              type: string

@@ -2,16 +2,16 @@
 import logging
 import sys
 
+from gevent.pywsgi import WSGIServer
 from search import Search
 from server import app as application
 from timeit import default_timer as timer
 from validator import Validator
-from wsgiref.simple_server import make_server
 
 log = logging.getLogger(__name__)
 
 
-def main():
+def main(port=5000):
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -26,10 +26,10 @@ def main():
     load_end = timer()
     log.info('Load time: %s', str(load_end - load_start))
 
-    httpd = make_server('0.0.0.0', 5000, application)
-    log.info("Serving corporate names on port 5000")
-    httpd.serve_forever()
+    log.info("Serving corporate names on port %s", str(port))
+    WSGIServer(('', port), application).serve_forever()
     log.info("Server terminated!")
+
 
 if __name__ == '__main__':
     main()

@@ -22,12 +22,13 @@ export class NamerService {
 
     constructor (private http: Http) {}
 
-    getHits(query: string): Observable<HitResult> {
-        let limit = 20;
-
+    getHits(query: string, limit?: number, synonym?: boolean): Observable<HitResult> {
         let params: URLSearchParams = new URLSearchParams();
         params.set('q', query);
-        params.set('limit', limit.toString());
+        params.set('limit', ((typeof limit === "undefined") ? 20 : limit).toString());
+        if (typeof synonym !== "undefined") {
+            params.set('synonym', synonym.toString());
+        }
 
         let requestOptions = new RequestOptions();
         requestOptions.search = params;
