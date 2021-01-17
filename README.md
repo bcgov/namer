@@ -1,6 +1,9 @@
 # Namer #
 ![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 
+[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md) - ```[![img](https://img.shields.io/badge/Lifecycle-Retired-d45500)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)```\
+The project is no longer being used and/or supported.
+
 Rapid Name Search
 
 ## Dependencies ##
