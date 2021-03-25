@@ -1,7 +1,7 @@
 # Base Requirements
 Flask==0.12.2              #BSD License
 PyTrie==0.3                #BSD
-pyyaml==3.12               #MIT
+pyyaml==5.4               #MIT
 flask-swaggerui==0.0.1     #MIT
 
 # Test Requirements
